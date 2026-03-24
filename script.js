@@ -91,3 +91,70 @@ function goToStep(step) {
 function goBack() {
     if (currentStep > 1) goToStep(currentStep - 1);
 }
+
+// --- NOVAS FUNÇÕES DO CHAT (TELA 2) ---
+
+function verificarEnter(event) {
+    // Permite enviar a mensagem apertando a tecla Enter
+    if (event.key === "Enter") {
+        enviarMensagemChat();
+    }
+}
+
+function enviarMensagemChat() {
+    const inputEl = document.getElementById('chat-input');
+    const mensagem = inputEl.value.trim();
+    if (!mensagem) return;
+
+    const chatHistory = document.getElementById('chat-history');
+
+    // 1. Adiciona a mensagem do Usuário
+    chatHistory.innerHTML += `
+        <div class="bg-gray-200 text-gray-800 p-2 rounded-lg rounded-tr-none self-end max-w-[90%] shadow-sm">
+            ${mensagem}
+        </div>
+    `;
+    inputEl.value = ''; // Limpa o input
+    chatHistory.scrollTop = chatHistory.scrollHeight; // Rola para o fim
+
+    // 2. Simula IA Pensando
+    const idPensando = 'msg-' + Date.now();
+    chatHistory.innerHTML += `
+        <div id="${idPensando}" class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] opacity-70 animate-pulse">
+            Digitando...
+        </div>
+    `;
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // 3. Resposta da IA e atualização da tela (Simulação do Refinamento)
+    setTimeout(() => {
+        document.getElementById(idPensando).remove();
+        let respostaIA = "Feito! Ajustei conforme você pediu.";
+        const msgLower = mensagem.toLowerCase();
+
+        // Regras de simulação baseadas no que o usuário digitar
+        if (msgLower.includes('curto') || msgLower.includes('resuma')) {
+            document.getElementById('ia-corpo').value = "O homem em movimento não perde tempo. Garanta suas escolhas com 10% OFF usando o código ARAMIS10.";
+            document.getElementById('preview-text').innerText = document.getElementById('ia-corpo').value;
+            respostaIA = "Deixei o texto mais direto e foquei no desconto!";
+        } 
+        else if (msgLower.includes('assunto') || msgLower.includes('título')) {
+            document.getElementById('ia-assunto').value = "Suas escolhas exclusivas aguardam 👔";
+            document.getElementById('preview-title').innerText = "Suas escolhas exclusivas aguardam";
+            respostaIA = "Atualizei o assunto para algo mais exclusivo.";
+        }
+        else if (msgLower.includes('botão') || msgLower.includes('cta')) {
+            document.getElementById('ia-cta').value = "GARANTIR MEUS 10% OFF";
+            document.getElementById('preview-btn').innerText = document.getElementById('ia-cta').value;
+            respostaIA = "Mudei o botão para gerar mais senso de urgência.";
+        }
+
+        // Adiciona a resposta final da IA no chat
+        chatHistory.innerHTML += `
+            <div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] shadow-sm">
+                ${respostaIA}
+            </div>
+        `;
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }, 1200);
+}
