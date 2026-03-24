@@ -33,7 +33,7 @@ function goBack() {
 }
 
 // ==========================================
-// INTELIGÊNCIA ARTIFICIAL (SIMULAÇÃO)
+// INTELIGÊNCIA ARTIFICIAL (SIMULAÇÃO INTELIGENTE)
 // ==========================================
 function processarComIA() {
     try {
@@ -67,63 +67,54 @@ function aplicarResultadosIA() {
     document.getElementById('tag-destino').innerText = `Integração: ${dadosCampanha.destino}`;
     document.getElementById('btn-enviar-crm').innerText = `Enviar direto para ${dadosCampanha.destino} 🚀`;
 
-    let iaAssunto, iaCorpo, iaCta;
+    let iaAssunto = "";
+    let iaCorpo = "";
+    let iaCta = "SABER MAIS";
     
-    // VARIÁVEL PARA LER O QUE O UTILIZADOR PEDIU NO PROMPT
     const pedidoUsuario = dadosCampanha.prompt;
+    const nomeCliente = dadosCampanha.cliente !== 'Sua Marca' ? dadosCampanha.cliente : 'nossa loja';
 
-    // REGRAS DA ARAMIS (Lendo o Prompt)
     if (dadosCampanha.url.includes('aramis') || dadosCampanha.cliente.toLowerCase().includes('aramis')) {
-        
         document.getElementById('preview-logo').innerText = "ARAMIS";
         document.getElementById('brand-indicator').innerText = "Brandbook: Minimalista / Masculino";
-
-        // Se o utilizador pediu "boas vindas" ou "novo cliente"
-        if (pedidoUsuario.includes('boas vindas') || pedidoUsuario.includes('welcome') || pedidoUsuario.includes('novo')) {
-            iaAssunto = "Bem-vindo ao clube. 👔";
-            iaCorpo = "O seu estilo acaba de subir de nível. O homem em movimento está sempre um passo à frente. Aproveite 15% OFF na sua primeira compra com o código BEMVINDO15.";
-            iaCta = "CONHECER A COLEÇÃO";
-        } 
-        // Se o utilizador pediu "promoção", "desconto", "liquidação", "sale"
-        else if (pedidoUsuario.includes('promo') || pedidoUsuario.includes('desconto') || pedidoUsuario.includes('sale') || pedidoUsuario.includes('liquidação')) {
-            iaAssunto = "Acesso VIP libertado: Off exclusivo. 👔";
-            iaCorpo = "As peças exclusivas que tinha debaixo de olho estão agora com condições especiais. Renove o seu guarda-roupa com até 40% de desconto. Não perca tempo.";
-            iaCta = "VER PRODUTOS COM DESCONTO";
-        } 
-        // Padrão: Carrinho Abandonado
-        else {
-            iaAssunto = "O seu estilo não espera. Finalize a sua compra. 👔";
-            iaCorpo = "Notámos que selecionou peças exclusivas no nosso site, mas não finalizou a encomenda. O homem em movimento não perde tempo. Garanta as suas escolhas com 10% de desconto usando o código ARAMIS10.";
-            iaCta = "VOLTAR PARA O CARRINHO";
-        }
-
     } else {
-        // REGRAS PARA OUTRAS MARCAS (Genérico)
-        document.getElementById('preview-logo').innerText = dadosCampanha.cliente.toUpperCase();
+        document.getElementById('preview-logo').innerText = nomeCliente.toUpperCase();
         document.getElementById('brand-indicator').innerText = "Brandbook: Padrão";
-
-        if (pedidoUsuario.includes('boas vindas') || pedidoUsuario.includes('novo')) {
-            iaAssunto = `Bem-vindo(a) à ${dadosCampanha.cliente}! 🎉`;
-            iaCorpo = "Estamos muito felizes em ter-te por aqui. Para começares com o pé direito, preparámos um presente especial para ti.";
-            iaCta = "PEGAR NO MEU PRESENTE";
-        } else if (pedidoUsuario.includes('promo') || pedidoUsuario.includes('desconto')) {
-            iaAssunto = "As ofertas imperdíveis chegaram! 🚨";
-            iaCorpo = `Preparámos uma seleção incrível de produtos da ${dadosCampanha.cliente} com preços que não vais acreditar. Corre antes que acabe!`;
-            iaCta = "APROVEITAR OFERTAS";
-        } else {
-            iaAssunto = "Esqueceu-se de algo no carrinho! 🛒";
-            iaCorpo = `Olá! Reparamos que deixou alguns itens fantásticos no site da ${dadosCampanha.cliente}. Aproveite antes que o stock acabe!`;
-            iaCta = "FINALIZAR COMPRA AGORA";
-        }
     }
 
-    // Aplica os textos nos inputs da coluna da esquerda
+    if (pedidoUsuario !== '') {
+        if (pedidoUsuario.includes('boas vindas') || pedidoUsuario.includes('novo') || pedidoUsuario.includes('welcome')) {
+            iaAssunto = `Bem-vindo(a) ao clube ${nomeCliente}! 🎉`;
+            iaCorpo = "O seu estilo acaba de subir de nível. O homem em movimento está sempre um passo à frente. Aproveite 15% OFF na sua primeira compra connosco.";
+            iaCta = "CONHECER A COLEÇÃO";
+        } 
+        else if (pedidoUsuario.includes('promo') || pedidoUsuario.includes('desconto') || pedidoUsuario.includes('sale') || pedidoUsuario.includes('liquidação')) {
+            iaAssunto = `Acesso VIP libertado: Condições exclusivas na ${nomeCliente}. 🔥`;
+            iaCorpo = "As peças exclusivas que tinha debaixo de olho estão agora com condições especiais. Renove o seu guarda-roupa com descontos imperdíveis e não perca tempo.";
+            iaCta = "VER PRODUTOS COM DESCONTO";
+        } 
+        else if (pedidoUsuario.includes('carrinho') || pedidoUsuario.includes('abandonado') || pedidoUsuario.includes('esqueceu')) {
+            iaAssunto = "O seu estilo não espera. Finalize a sua compra. 🛒";
+            iaCorpo = `Notámos que selecionou peças exclusivas na ${nomeCliente}, mas não finalizou a encomenda. O homem em movimento não perde tempo. Garanta as suas escolhas hoje.`;
+            iaCta = "VOLTAR PARA O CARRINHO";
+        }
+        else {
+            iaAssunto = `Novidade especial da ${nomeCliente} para si! ✨`;
+            const promptAjustado = pedidoUsuario.charAt(0).toUpperCase() + pedidoUsuario.slice(1);
+            iaCorpo = `Criámos esta comunicação a pensar exatamente no que nos pediu: "${promptAjustado}". Aproveite para descobrir as nossas novas campanhas e produtos em destaque.`;
+            iaCta = "VER MAIS DETALHES";
+        }
+    } else {
+        iaAssunto = `Descubra as novidades da ${nomeCliente}! 🚀`;
+        iaCorpo = `Olá! Temos atualizações incríveis no nosso site. Visite a ${nomeCliente} e descubra o que preparámos para si esta semana. Não deixe escapar as novidades.`;
+        iaCta = "VISITAR O SITE";
+    }
+
     document.getElementById('ia-assunto').value = iaAssunto;
     document.getElementById('ia-corpo').value = iaCorpo;
     document.getElementById('ia-cta').value = iaCta;
 
-    // Aplica os textos no preview do e-mail
-    document.getElementById('preview-title').innerText = iaAssunto.replace(' 👔', '').replace(' 🛒', '').replace(' 🎉', '').replace(' 🚨', '');
+    document.getElementById('preview-title').innerText = iaAssunto.replace(/[\u{1F600}-\u{1F6FF}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
     document.getElementById('preview-text').innerText = iaCorpo;
     document.getElementById('preview-btn').innerText = iaCta;
 }
@@ -241,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // CMS EDITOR: TEXTOS, UPLOADS E DRAG & DROP
 // ==========================================
 
-// --- Editor de Texto (Barra Flutuante) ---
 let currentTarget = null;
 const toolbar = document.getElementById('cms-toolbar');
 
@@ -275,7 +265,6 @@ function formatText(command, value = null) {
     currentTarget.focus();
 }
 
-// --- Upload de Imagem Direto ---
 let currentImageIdToSwap = null;
 
 function abrirUploadImagem(imageId) {
@@ -292,7 +281,6 @@ document.getElementById('hidden-file-upload').addEventListener('change', functio
     this.value = ''; 
 });
 
-// --- Drag & Drop dos Blocos ---
 const containerBuilder = document.getElementById('email-builder-container');
 let draggedItem = null;
 
