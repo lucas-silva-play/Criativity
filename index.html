@@ -43,7 +43,7 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-1">Link do Site <span class="text-xs text-gray-400 font-normal ml-1">(A IA lerá cores e tom de voz)</span></label>
+                <label class="block text-sm font-medium mb-1">Link do Site <span class="text-xs text-gray-400 font-normal ml-1">(Opcional - A IA lerá cores, fontes e tom de voz)</span></label>
                 <div class="relative">
                     <input type="url" id="input-url" placeholder="https://www.site-do-cliente.com.br" class="w-full border rounded p-2 pl-10 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
@@ -52,7 +52,18 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-medium mb-1">Objetivo da Campanha (Prompt)</label>
-                <textarea id="input-prompt" rows="3" class="w-full border rounded p-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Criar uma campanha de resgate de carrinho..."></textarea>
+                <textarea id="input-prompt" rows="3" class="w-full border rounded p-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Criar uma campanha de resgate de carrinho focada em clientes que abandonaram sapatos de inverno. Tom de urgência."></textarea>
+            </div>
+
+            <div class="mb-8">
+                <label class="block text-sm font-medium mb-1">
+                    Referências (Upload)
+                    <span class="text-xs text-gray-400 font-normal ml-1">(Opcional)</span>
+                </label>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
+                    <p class="text-gray-500">Arraste arquivos aqui ou clique para fazer upload</p>
+                    <p class="text-xs text-gray-400 mt-2">PDFs, Imagens (JPG, PNG), DOCx</p>
+                </div>
             </div>
 
             <div class="flex justify-end mt-8">
