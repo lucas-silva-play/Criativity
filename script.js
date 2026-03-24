@@ -158,3 +158,63 @@ function enviarMensagemChat() {
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }, 1200);
 }
+
+// --- NOVAS FUNÇÕES: MODAL E CMS (TELA 2) ---
+
+// 1. Controle do Modal Full Screen
+function abrirModalPreview() {
+    const modal = document.getElementById('modal-preview');
+    const modalContent = document.getElementById('modal-content');
+    
+    // Pega o HTML exato da imagem montada (do jeito que o usuário editou) e joga no modal
+    const mockupEditado = document.querySelector('#preview-scroll-container > div').innerHTML;
+    modalContent.innerHTML = mockupEditado;
+    
+    // Remove as propriedades de edição do modal para ficar apenas como "leitura"
+    modalContent.querySelectorAll('[contenteditable]').forEach(el => {
+        el.removeAttribute('contenteditable');
+        el.classList.remove('hover:ring-2', 'hover:ring-dashed', 'cursor-text');
+    });
+    
+    modal.classList.remove('hidden-step');
+}
+
+function fecharModalPreview() {
+    document.getElementById('modal-preview').classList.add('hidden-step');
+}
+
+// 2. Sincronização CMS -> Formulário (Da direita para a esquerda)
+// Esta função é chamada automaticamente quando o usuário digita nos textos da imagem
+function sincronizarParaEsquerda(campo) {
+    if (campo === 'title') {
+        document.getElementById('ia-assunto').value = document.getElementById('preview-title').innerText;
+    } else if (campo === 'text') {
+        document.getElementById('ia-corpo').value = document.getElementById('preview-text').innerText;
+    } else if (campo === 'btn') {
+        document.getElementById('ia-cta').value = document.getElementById('preview-btn').innerText;
+    }
+}
+
+// 3. Sincronização Formulário -> CMS (Da esquerda para a direita)
+// Cria "escutadores" para que os inputs do formulário alterem a imagem em tempo real
+document.addEventListener('DOMContentLoaded', () => {
+    const inputAssunto = document.getElementById('ia-assunto');
+    const inputCorpo = document.getElementById('ia-corpo');
+    const inputCta = document.getElementById('ia-cta');
+
+    if (inputAssunto) {
+        inputAssunto.addEventListener('input', function() {
+            document.getElementById('preview-title').innerText = this.value;
+        });
+    }
+    if (inputCorpo) {
+        inputCorpo.addEventListener('input', function() {
+            document.getElementById('preview-text').innerText = this.value;
+        });
+    }
+    if (inputCta) {
+        inputCta.addEventListener('input', function() {
+            document.getElementById('preview-btn').innerText = this.value;
+        });
+    }
+});
