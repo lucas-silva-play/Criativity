@@ -56,10 +56,7 @@
             </div>
 
             <div class="mb-8">
-                <label class="block text-sm font-medium mb-1">
-                    Referências (Upload)
-                    <span class="text-xs text-gray-400 font-normal ml-1">(Opcional)</span>
-                </label>
+                <label class="block text-sm font-medium mb-1">Referências (Upload) <span class="text-xs text-gray-400 font-normal ml-1">(Opcional)</span></label>
                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
                     <p class="text-gray-500">Arraste arquivos aqui ou clique para fazer upload</p>
                     <p class="text-xs text-gray-400 mt-2">PDFs, Imagens (JPG, PNG), DOCx</p>
@@ -74,6 +71,7 @@
         </section>
 
         <section id="step-2" class="hidden-step w-full max-w-6xl flex gap-6">
+            
             <div class="w-1/3 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[70vh]">
                 <h2 class="text-xl font-bold mb-4 flex items-center gap-2">✍️ Copy <span class="text-xs bg-green-100 text-green-700 py-1 px-2 rounded">IA</span></h2>
                 
@@ -121,30 +119,51 @@
                     <span id="brand-indicator" class="text-xs bg-black text-white py-1 px-3 rounded-full">Carregando Marca...</span>
                 </h2>
                 
-                <div class="flex-1 overflow-y-auto w-full flex justify-center pb-8" id="preview-scroll-container">
+                <div class="flex-1 overflow-y-auto w-full flex justify-center pb-8 relative" id="preview-scroll-container">
                     
-                    <div id="cms-toolbar" class="hidden absolute z-50 bg-gray-900 text-white p-1 rounded-lg shadow-xl flex gap-1 items-center transform -translate-y-full -translate-x-1/2 mt-[-10px]">
-                        <button onclick="formatText('bold')" class="p-2 hover:bg-gray-700 rounded text-sm font-bold" title="Negrito">B</button>
-                        <button onclick="formatText('italic')" class="p-2 hover:bg-gray-700 rounded text-sm italic" title="Itálico">I</button>
-                        <div class="w-px h-5 bg-gray-600 mx-1"></div>
-                        <button onclick="changeFontSize(1)" class="p-2 hover:bg-gray-700 rounded text-xs font-bold" title="Aumentar Fonte">A+</button>
-                        <button onclick="changeFontSize(-1)" class="p-2 hover:bg-gray-700 rounded text-xs font-bold" title="Diminuir Fonte">A-</button>
-                        <div class="w-px h-5 bg-gray-600 mx-1"></div>
-                        <input type="color" id="cms-color-picker" onchange="changeTextColor(this.value)" class="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent" title="Cor do Texto">
+                    <div id="cms-toolbar" class="hidden absolute z-50 bg-white border border-gray-200 text-gray-800 p-2 rounded shadow-xl flex gap-2 items-center text-sm transform -translate-y-full -translate-x-1/2 mt-[-10px]">
+                        <select onchange="formatText('fontName', this.value)" class="border border-gray-300 p-1 rounded focus:outline-none text-xs">
+                            <option value="Arial">Arial</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Courier New">Courier</option>
+                            <option value="Times New Roman">Times</option>
+                            <option value="Verdana">Verdana</option>
+                        </select>
+                        
+                        <select onchange="formatText('fontSize', this.value)" class="border border-gray-300 p-1 rounded focus:outline-none text-xs">
+                            <option value="2">Pequeno</option>
+                            <option value="3" selected>Normal</option>
+                            <option value="5">Grande</option>
+                            <option value="6">Muito Grande</option>
+                            <option value="7">Gigante</option>
+                        </select>
+
+                        <div class="w-px h-5 bg-gray-300 mx-1"></div>
+                        
+                        <button onclick="formatText('bold')" class="p-1 hover:bg-gray-100 rounded font-bold w-6 h-6 flex items-center justify-center" title="Negrito">B</button>
+                        <button onclick="formatText('italic')" class="p-1 hover:bg-gray-100 rounded italic font-serif w-6 h-6 flex items-center justify-center" title="Itálico">I</button>
+                        <button onclick="formatText('underline')" class="p-1 hover:bg-gray-100 rounded underline w-6 h-6 flex items-center justify-center" title="Sublinhado">U</button>
+                        
+                        <div class="w-px h-5 bg-gray-300 mx-1"></div>
+                        
+                        <div class="flex items-center gap-1" title="Cor do Texto">
+                            <span class="font-bold text-xs">A</span>
+                            <input type="color" onchange="formatText('foreColor', this.value)" class="w-5 h-5 cursor-pointer border-0 p-0 bg-transparent">
+                        </div>
                     </div>
 
-                    <div id="email-builder-container" class="w-full max-w-md bg-white shadow-xl rounded h-max flex flex-col relative">
+                    <div id="email-builder-container" class="w-full max-w-md bg-white shadow-xl rounded h-max flex flex-col relative mt-8">
                         
                         <div class="builder-block text-center py-6 border-b cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
                             <h1 id="preview-logo" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('logo')" class="text-2xl font-serif tracking-widest uppercase font-bold text-gray-900 outline-none rounded px-2 mx-auto inline-block cursor-text">MARCA</h1>
                         </div>
                         
                         <div class="builder-block relative group cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
-                            <img id="hero-image-preview" src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=600&q=80" alt="Hero" class="w-full h-64 object-cover">
-                            <div onclick="abrirMenuImagem('hero-image-preview')" class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center transition-all cursor-pointer">
+                            <img id="hero-image-preview" src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=600&q=80" alt="Hero" class="w-full h-64 object-cover pointer-events-none">
+                            <div onclick="abrirUploadImagem('hero-image-preview')" class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center transition-all cursor-pointer">
                                 <span class="text-white text-sm font-bold flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
-                                    Editar Imagem (Link ou Upload)
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                    Fazer Upload
                                 </span>
                             </div>
                         </div>
@@ -156,19 +175,19 @@
                         </div>
                         
                         <div class="builder-block bg-gray-50 p-6 border-t cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
-                            <p class="text-center text-xs text-gray-500 uppercase tracking-widest mb-4">Seus itens salvos</p>
+                            <p class="text-center text-xs text-gray-500 uppercase tracking-widest mb-4 outline-none cursor-text hover:ring-2 hover:ring-blue-400 rounded" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()">Seus itens salvos</p>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="text-center group relative">
-                                    <img id="prod1-img" src="https://images.unsplash.com/photo-1594938298596-70f58bf4dd4a?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 transition">
-                                    <div onclick="abrirMenuImagem('prod1-img')" class="absolute top-0 left-0 w-full h-32 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer transition">
-                                        <span class="text-white text-xs font-bold">Trocar</span>
+                                    <img id="prod1-img" src="https://images.unsplash.com/photo-1594938298596-70f58bf4dd4a?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 transition pointer-events-none">
+                                    <div onclick="abrirUploadImagem('prod1-img')" class="absolute top-0 left-0 w-full h-32 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer transition">
+                                        <span class="text-white text-xs font-bold">Upload</span>
                                     </div>
                                     <p contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" class="text-xs font-bold outline-none cursor-text rounded px-1">Camisa Oxford</p>
                                 </div>
                                 <div class="text-center group relative">
-                                    <img id="prod2-img" src="https://images.unsplash.com/photo-1550995694-3f5f4a7e1bd2?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 transition">
-                                    <div onclick="abrirMenuImagem('prod2-img')" class="absolute top-0 left-0 w-full h-32 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer transition">
-                                        <span class="text-white text-xs font-bold">Trocar</span>
+                                    <img id="prod2-img" src="https://images.unsplash.com/photo-1550995694-3f5f4a7e1bd2?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 transition pointer-events-none">
+                                    <div onclick="abrirUploadImagem('prod2-img')" class="absolute top-0 left-0 w-full h-32 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer transition">
+                                        <span class="text-white text-xs font-bold">Upload</span>
                                     </div>
                                     <p contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" class="text-xs font-bold outline-none cursor-text rounded px-1">Calça Chino</p>
                                 </div>
@@ -177,25 +196,12 @@
                     </div>
 
                     <input type="file" id="hidden-file-upload" accept="image/*" class="hidden">
-
-        <div id="modal-preview" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step p-6">
-            <div class="w-full max-w-4xl flex justify-between items-center mb-4 text-white">
-                <h3 class="text-xl font-bold flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    Preview Final (Tela Cheia)
-                </h3>
-                <button onclick="fecharModalPreview()" class="text-white hover:text-gray-300 flex items-center gap-1 font-bold bg-white/10 px-4 py-2 rounded-lg transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    Fechar
-                </button>
+                </div>
             </div>
-            <div id="modal-content" class="w-full max-w-lg bg-white rounded overflow-y-auto max-h-[85vh]">
-            </div>
-        </div>
+        </section>
 
         <section id="step-3" class="hidden-step w-full max-w-5xl bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 class="text-2xl font-bold mb-6">Pronto para Envio</h2>
-            
             <div class="flex gap-6">
                 <div class="w-full flex flex-col">
                     <label class="font-medium mb-2 flex justify-between items-center">
@@ -231,6 +237,20 @@
         <div class="loading-spinner border-4 border-gray-200 border-t-blue-600 rounded-full w-16 h-16 mb-6"></div>
         <h2 class="text-2xl font-bold text-gray-800 mb-2">A IA da Caaqui está trabalhando...</h2>
         <p id="loading-text" class="text-gray-600 font-medium">Lendo referências...</p>
+    </div>
+
+    <div id="modal-preview" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step p-6">
+        <div class="w-full max-w-4xl flex justify-between items-center mb-4 text-white">
+            <h3 class="text-xl font-bold flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Preview Final (Tela Cheia)
+            </h3>
+            <button onclick="fecharModalPreview()" class="text-white hover:text-gray-300 flex items-center gap-1 font-bold bg-white/10 px-4 py-2 rounded-lg transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                Fechar
+            </button>
+        </div>
+        <div id="modal-content" class="w-full max-w-lg bg-white rounded overflow-y-auto max-h-[85vh]"></div>
     </div>
 
     <script src="script.js"></script>
