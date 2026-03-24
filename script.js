@@ -218,3 +218,124 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==========================================
+// MÓDULO CMS: DRAG & DROP, TEXTOS E IMAGENS
+// ==========================================
+
+// --- 1. Menu Flutuante de Textos ---
+let currentTarget = null;
+const toolbar = document.getElementById('cms-toolbar');
+
+function showToolbar(element) {
+    currentTarget = element;
+    const rect = element.getBoundingClientRect();
+    const containerRect = document.getElementById('preview-scroll-container').getBoundingClientRect();
+    
+    toolbar.style.left = `${rect.left - containerRect.left + (rect.width / 2)}px`;
+    toolbar.style.top = `${rect.top - containerRect.top - 10}px`;
+    toolbar.classList.remove('hidden');
+}
+
+// Pequeno delay no blur para dar tempo de clicar nos botões da toolbar
+function hideToolbar() {
+    setTimeout(() => {
+        if (!toolbar.matches(':hover')) {
+            toolbar.classList.add('hidden');
+        }
+    }, 200);
+}
+
+function formatText(command) {
+    document.execCommand(command, false, null);
+    if (currentTarget) currentTarget.focus();
+}
+
+function changeFontSize(step) {
+    if (!currentTarget) return;
+    // Pega o tamanho atual computado e soma ou subtrai
+    const currentSize = window.getComputedStyle(currentTarget, null).getPropertyValue('font-size');
+    const newSize = parseFloat(currentSize) + (step * 2);
+    currentTarget.style.fontSize = newSize + 'px';
+}
+
+function changeTextColor(color) {
+    if (!currentTarget) return;
+    // Se for o botão, muda o fundo. Se for texto, muda a cor da letra.
+    if(currentTarget.tagName === 'BUTTON') {
+        currentTarget.style.backgroundColor = color;
+    } else {
+        document.execCommand('foreColor', false, color);
+    }
+}
+
+// --- 2. Gestão de Imagens (Link ou Upload Local) ---
+let currentImageIdToSwap = null;
+
+function abrirMenuImagem(imageId) {
+    currentImageIdToSwap = imageId;
+    const acao = prompt("Digite '1' para colar um Link da web ou '2' para fazer Upload do seu PC:", "1");
+    
+    if (acao === "1") {
+        const url = prompt("Cole a URL da imagem aqui:");
+        if (url) document.getElementById(imageId).src = url;
+    } else if (acao === "2") {
+        // Aciona o input file oculto
+        document.getElementById('hidden-file-upload').click();
+    }
+}
+
+// Escutador do input file oculto
+document.getElementById('hidden-file-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file && currentImageIdToSwap) {
+        // Cria uma URL local temporária para exibir a imagem upada
+        const imageUrl = URL.createObjectURL(file);
+        document.getElementById(currentImageIdToSwap).src = imageUrl;
+    }
+    this.value = ''; // Limpa o input
+});
+
+// --- 3. Drag & Drop (Arrastar e Soltar Blocos) ---
+const container = document.getElementById('email-builder-container');
+let draggedItem = null;
+
+// Inicializa os eventos de drag nos blocos
+document.querySelectorAll('.builder-block').forEach(block => {
+    block.addEventListener('dragstart', function(e) {
+        draggedItem = this;
+        setTimeout(() => this.classList.add('opacity-50'), 0);
+    });
+
+    block.addEventListener('dragend', function() {
+        setTimeout(() => {
+            this.classList.remove('opacity-50');
+            draggedItem = null;
+        }, 0);
+    });
+
+    block.addEventListener('dragover', function(e) {
+        e.preventDefault(); // Necessário para permitir o drop
+        const afterElement = getDragAfterElement(container, e.clientY);
+        if (afterElement == null) {
+            container.appendChild(draggedItem);
+        } else {
+            container.insertBefore(draggedItem, afterElement);
+        }
+    });
+});
+
+// Calcula a posição do mouse para saber onde soltar o bloco
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.builder-block:not(.opacity-50)')];
+    
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
