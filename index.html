@@ -58,7 +58,7 @@
             <div class="mb-8">
                 <label class="block text-sm font-medium mb-1">Referências (Upload) <span class="text-xs text-gray-400 font-normal ml-1">(Opcional)</span></label>
                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
-                    <p class="text-gray-500">Arraste arquivos aqui ou clique para fazer upload</p>
+                    <p class="text-gray-500">Arraste ficheiros aqui ou clique para fazer upload</p>
                     <p class="text-xs text-gray-400 mt-2">PDFs, Imagens (JPG, PNG), DOCx</p>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                     <h3 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">💬 Refinar com IA</h3>
                     <div id="chat-history" class="flex-1 bg-gray-50 border border-gray-100 rounded p-3 overflow-y-auto mb-2 text-xs flex flex-col gap-2">
                         <div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%]">
-                            Como posso ajustar esse criativo para você?
+                            Como posso ajustar este criativo para si?
                         </div>
                     </div>
                     <div class="flex gap-2">
@@ -116,7 +116,7 @@
                             Ampliar
                         </button>
                     </div>
-                    <span id="brand-indicator" class="text-xs bg-black text-white py-1 px-3 rounded-full">Carregando Marca...</span>
+                    <span id="brand-indicator" class="text-xs bg-black text-white py-1 px-3 rounded-full">A carregar a Marca...</span>
                 </h2>
                 
                 <div class="flex-1 overflow-y-auto w-full flex justify-center pb-8 relative" id="preview-scroll-container">
@@ -169,13 +169,13 @@
                         </div>
                         
                         <div class="builder-block p-8 text-center cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
-                            <h2 id="preview-title" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('title')" class="text-xl font-medium text-gray-900 mb-4 outline-none cursor-text rounded px-1">Seu estilo não espera.</h2>
-                            <p id="preview-text" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('text')" class="text-gray-600 text-sm mb-6 leading-relaxed outline-none cursor-text rounded px-1">Notamos que você selecionou peças exclusivas, mas não finalizou a compra. O carrinho foi salvo para você.</p>
+                            <h2 id="preview-title" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('title')" class="text-xl font-medium text-gray-900 mb-4 outline-none cursor-text rounded px-1">O seu estilo não espera.</h2>
+                            <p id="preview-text" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('text')" class="text-gray-600 text-sm mb-6 leading-relaxed outline-none cursor-text rounded px-1">Notámos que selecionou peças exclusivas, mas não finalizou a compra. O carrinho foi guardado para si.</p>
                             <button id="preview-btn" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('btn')" class="bg-black text-white px-8 py-3 text-sm font-bold tracking-wider outline-none cursor-text inline-block hover:opacity-80 transition" style="background-color: #000000; color: #ffffff;">VOLTAR PARA O CARRINHO</button>
                         </div>
                         
                         <div class="builder-block bg-gray-50 p-6 border-t cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
-                            <p class="text-center text-xs text-gray-500 uppercase tracking-widest mb-4 outline-none cursor-text hover:ring-2 hover:ring-blue-400 rounded" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()">Seus itens salvos</p>
+                            <p class="text-center text-xs text-gray-500 uppercase tracking-widest mb-4 outline-none cursor-text hover:ring-2 hover:ring-blue-400 rounded" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()">Os seus itens guardados</p>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="text-center group relative">
                                     <img id="prod1-img" src="https://images.unsplash.com/photo-1594938298596-70f58bf4dd4a?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 transition pointer-events-none">
@@ -189,7 +189,7 @@
                                     <div onclick="abrirUploadImagem('prod2-img')" class="absolute top-0 left-0 w-full h-32 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer transition">
                                         <span class="text-white text-xs font-bold">Upload</span>
                                     </div>
-                                    <p contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" class="text-xs font-bold outline-none cursor-text rounded px-1">Calça Chino</p>
+                                    <p contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" class="text-xs font-bold outline-none cursor-text rounded px-1">Calças Chino</p>
                                 </div>
                             </div>
                         </div>
@@ -235,15 +235,15 @@
 
     <div id="loading-overlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step">
         <div class="loading-spinner border-4 border-gray-200 border-t-blue-600 rounded-full w-16 h-16 mb-6"></div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">A IA da Caaqui está trabalhando...</h2>
-        <p id="loading-text" class="text-gray-600 font-medium">Lendo referências...</p>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">A IA da Caaqui está a trabalhar...</h2>
+        <p id="loading-text" class="text-gray-600 font-medium">A analisar referências...</p>
     </div>
 
     <div id="modal-preview" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step p-6">
         <div class="w-full max-w-4xl flex justify-between items-center mb-4 text-white">
             <h3 class="text-xl font-bold flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                Preview Final (Tela Cheia)
+                Preview Final (Ecrã Inteiro)
             </h3>
             <button onclick="fecharModalPreview()" class="text-white hover:text-gray-300 flex items-center gap-1 font-bold bg-white/10 px-4 py-2 rounded-lg transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
