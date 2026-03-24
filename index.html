@@ -94,13 +94,11 @@
 
                 <div class="mt-auto border-t pt-4 flex flex-col flex-1 overflow-hidden">
                     <h3 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">💬 Refinar com IA</h3>
-                    
                     <div id="chat-history" class="flex-1 bg-gray-50 border border-gray-100 rounded p-3 overflow-y-auto mb-2 text-xs flex flex-col gap-2">
                         <div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%]">
                             Como posso ajustar esse criativo para você?
                         </div>
                     </div>
-                    
                     <div class="flex gap-2">
                         <input type="text" id="chat-input" onkeypress="verificarEnter(event)" placeholder="Ex: Deixe o texto mais curto..." class="flex-1 border border-gray-300 rounded p-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <button onclick="enviarMensagemChat()" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition flex items-center justify-center">
@@ -110,38 +108,75 @@
                 </div>
             </div>
 
-            <div class="w-2/3 bg-gray-100 p-6 rounded-xl shadow-inner border border-gray-200 flex flex-col items-center overflow-y-auto h-[70vh]">
-                <h2 class="w-full text-lg font-bold mb-4 flex items-center justify-between text-gray-600">
-                    <span>🎨 Preview do Layout</span>
+            <div class="w-2/3 bg-gray-100 p-6 rounded-xl shadow-inner border border-gray-200 flex flex-col h-[70vh]">
+                
+                <h2 class="w-full text-lg font-bold mb-4 flex items-center justify-between text-gray-600 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <span>🎨 Preview do Layout</span>
+                        <button onclick="abrirModalPreview()" class="text-xs bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-1 px-3 rounded flex items-center gap-1 transition shadow-sm">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                            Ampliar
+                        </button>
+                    </div>
                     <span id="brand-indicator" class="text-xs bg-black text-white py-1 px-3 rounded-full">Carregando Marca...</span>
                 </h2>
                 
-                <div class="w-full max-w-md bg-white shadow-xl rounded overflow-hidden">
-                    <div class="text-center py-6 border-b">
-                        <h1 id="preview-logo" class="text-2xl font-serif tracking-widest uppercase font-bold text-gray-900">MARCA</h1>
-                    </div>
-                    <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=600&q=80" alt="Hero" class="w-full h-64 object-cover">
-                    <div class="p-8 text-center">
-                        <h2 id="preview-title" class="text-xl font-medium text-gray-900 mb-4">Seu estilo não espera.</h2>
-                        <p id="preview-text" class="text-gray-600 text-sm mb-6 leading-relaxed">Notamos que você selecionou peças exclusivas, mas não finalizou a compra. O carrinho foi salvo para você.</p>
-                        <button id="preview-btn" class="bg-black text-white px-8 py-3 text-sm font-bold tracking-wider hover:bg-gray-800 transition">VOLTAR PARA O CARRINHO</button>
-                    </div>
-                    <div class="bg-gray-50 p-6 border-t">
-                        <p class="text-center text-xs text-gray-500 uppercase tracking-widest mb-4">Seus itens salvos</p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="text-center">
-                                <img src="https://images.unsplash.com/photo-1594938298596-70f58bf4dd4a?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2">
-                                <p class="text-xs font-bold">Camisa Oxford</p>
+                <div class="flex-1 overflow-y-auto w-full flex justify-center pb-8" id="preview-scroll-container">
+                    
+                    <div class="w-full max-w-md bg-white shadow-xl rounded h-max">
+                        
+                        <div class="text-center py-6 border-b">
+                            <h1 id="preview-logo" contenteditable="true" oninput="sincronizarParaEsquerda('logo')" class="text-2xl font-serif tracking-widest uppercase font-bold text-gray-900 outline-none hover:ring-2 hover:ring-blue-400 hover:ring-dashed transition-all cursor-text rounded px-2 mx-auto inline-block">MARCA</h1>
+                        </div>
+                        
+                        <div class="relative group cursor-pointer">
+                            <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=600&q=80" alt="Hero" class="w-full h-64 object-cover">
+                            <div class="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-all">
+                                <span class="text-white text-sm font-bold flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+                                    Trocar Imagem
+                                </span>
                             </div>
-                            <div class="text-center">
-                                <img src="https://images.unsplash.com/photo-1550995694-3f5f4a7e1bd2?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2">
-                                <p class="text-xs font-bold">Calça Chino</p>
+                        </div>
+                        
+                        <div class="p-8 text-center">
+                            <h2 id="preview-title" contenteditable="true" oninput="sincronizarParaEsquerda('title')" class="text-xl font-medium text-gray-900 mb-4 outline-none hover:ring-2 hover:ring-blue-400 hover:ring-dashed transition-all cursor-text rounded px-1">Seu estilo não espera.</h2>
+                            <p id="preview-text" contenteditable="true" oninput="sincronizarParaEsquerda('text')" class="text-gray-600 text-sm mb-6 leading-relaxed outline-none hover:ring-2 hover:ring-blue-400 hover:ring-dashed transition-all cursor-text rounded px-1">Notamos que você selecionou peças exclusivas, mas não finalizou a compra. O carrinho foi salvo para você.</p>
+                            <button id="preview-btn" contenteditable="true" oninput="sincronizarParaEsquerda('btn')" class="bg-black text-white px-8 py-3 text-sm font-bold tracking-wider outline-none hover:ring-2 hover:ring-blue-400 hover:ring-offset-2 hover:ring-dashed cursor-text inline-block">VOLTAR PARA O CARRINHO</button>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-6 border-t">
+                            <p class="text-center text-xs text-gray-500 uppercase tracking-widest mb-4">Seus itens salvos</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-center group relative cursor-pointer">
+                                    <img src="https://images.unsplash.com/photo-1594938298596-70f58bf4dd4a?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 hover:opacity-80 transition">
+                                    <p contenteditable="true" class="text-xs font-bold outline-none hover:ring-2 hover:ring-blue-400 hover:ring-dashed rounded px-1">Camisa Oxford</p>
+                                </div>
+                                <div class="text-center group relative cursor-pointer">
+                                    <img src="https://images.unsplash.com/photo-1550995694-3f5f4a7e1bd2?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 hover:opacity-80 transition">
+                                    <p contenteditable="true" class="text-xs font-bold outline-none hover:ring-2 hover:ring-blue-400 hover:ring-dashed rounded px-1">Calça Chino</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <div id="modal-preview" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step p-6">
+            <div class="w-full max-w-4xl flex justify-between items-center mb-4 text-white">
+                <h3 class="text-xl font-bold flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Preview Final (Tela Cheia)
+                </h3>
+                <button onclick="fecharModalPreview()" class="text-white hover:text-gray-300 flex items-center gap-1 font-bold bg-white/10 px-4 py-2 rounded-lg transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Fechar
+                </button>
+            </div>
+            <div id="modal-content" class="w-full max-w-lg bg-white rounded overflow-y-auto max-h-[85vh]">
+            </div>
+        </div>
 
         <section id="step-3" class="hidden-step w-full max-w-5xl bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 class="text-2xl font-bold mb-6">Pronto para Envio</h2>
