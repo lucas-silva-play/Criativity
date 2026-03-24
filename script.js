@@ -40,15 +40,17 @@ function processarComIA() {
         const elCliente = document.getElementById('input-cliente');
         const elDestino = document.getElementById('input-destino');
         const elUrl = document.getElementById('input-url');
+        const elPrompt = document.getElementById('input-prompt');
         
         dadosCampanha.cliente = elCliente && elCliente.value ? elCliente.value : 'Sua Marca';
         dadosCampanha.destino = elDestino && elDestino.value ? elDestino.value : 'Insider One';
         dadosCampanha.url = elUrl && elUrl.value ? elUrl.value.toLowerCase() : '';
+        dadosCampanha.prompt = elPrompt && elPrompt.value ? elPrompt.value.toLowerCase() : '';
         
         document.getElementById('loading-overlay').classList.remove('hidden-step');
         
         setTimeout(() => { document.getElementById('loading-text').innerText = "A analisar o site e o tom de voz da marca..."; }, 500);
-        setTimeout(() => { document.getElementById('loading-text').innerText = "A gerar layout e copy de alta conversão..."; }, 1500);
+        setTimeout(() => { document.getElementById('loading-text').innerText = "A ler o briefing e a gerar copy de alta conversão..."; }, 1500);
 
         setTimeout(() => {
             aplicarResultadosIA();
@@ -66,27 +68,62 @@ function aplicarResultadosIA() {
     document.getElementById('btn-enviar-crm').innerText = `Enviar direto para ${dadosCampanha.destino} 🚀`;
 
     let iaAssunto, iaCorpo, iaCta;
+    
+    // VARIÁVEL PARA LER O QUE O UTILIZADOR PEDIU NO PROMPT
+    const pedidoUsuario = dadosCampanha.prompt;
 
+    // REGRAS DA ARAMIS (Lendo o Prompt)
     if (dadosCampanha.url.includes('aramis') || dadosCampanha.cliente.toLowerCase().includes('aramis')) {
-        iaAssunto = "Seu estilo não espera. Finalize sua compra. 👔";
-        iaCorpo = "Notamos que você selecionou peças exclusivas em nosso site, mas não finalizou o pedido. O homem em movimento não perde tempo. Garanta suas escolhas com 10% de desconto usando o código ARAMIS10.";
-        iaCta = "VOLTAR PARA O CARRINHO";
         
         document.getElementById('preview-logo').innerText = "ARAMIS";
         document.getElementById('brand-indicator').innerText = "Brandbook: Minimalista / Masculino";
+
+        // Se o utilizador pediu "boas vindas" ou "novo cliente"
+        if (pedidoUsuario.includes('boas vindas') || pedidoUsuario.includes('welcome') || pedidoUsuario.includes('novo')) {
+            iaAssunto = "Bem-vindo ao clube. 👔";
+            iaCorpo = "O seu estilo acaba de subir de nível. O homem em movimento está sempre um passo à frente. Aproveite 15% OFF na sua primeira compra com o código BEMVINDO15.";
+            iaCta = "CONHECER A COLEÇÃO";
+        } 
+        // Se o utilizador pediu "promoção", "desconto", "liquidação", "sale"
+        else if (pedidoUsuario.includes('promo') || pedidoUsuario.includes('desconto') || pedidoUsuario.includes('sale') || pedidoUsuario.includes('liquidação')) {
+            iaAssunto = "Acesso VIP libertado: Off exclusivo. 👔";
+            iaCorpo = "As peças exclusivas que tinha debaixo de olho estão agora com condições especiais. Renove o seu guarda-roupa com até 40% de desconto. Não perca tempo.";
+            iaCta = "VER PRODUTOS COM DESCONTO";
+        } 
+        // Padrão: Carrinho Abandonado
+        else {
+            iaAssunto = "O seu estilo não espera. Finalize a sua compra. 👔";
+            iaCorpo = "Notámos que selecionou peças exclusivas no nosso site, mas não finalizou a encomenda. O homem em movimento não perde tempo. Garanta as suas escolhas com 10% de desconto usando o código ARAMIS10.";
+            iaCta = "VOLTAR PARA O CARRINHO";
+        }
+
     } else {
-        iaAssunto = "Esqueceu-se de algo no carrinho! 🛒";
-        iaCorpo = `Olá! Reparamos que deixou alguns itens fantásticos no site da ${dadosCampanha.cliente}. Aproveite antes que o stock acabe!`;
-        iaCta = "FINALIZAR COMPRA AGORA";
+        // REGRAS PARA OUTRAS MARCAS (Genérico)
         document.getElementById('preview-logo').innerText = dadosCampanha.cliente.toUpperCase();
         document.getElementById('brand-indicator').innerText = "Brandbook: Padrão";
+
+        if (pedidoUsuario.includes('boas vindas') || pedidoUsuario.includes('novo')) {
+            iaAssunto = `Bem-vindo(a) à ${dadosCampanha.cliente}! 🎉`;
+            iaCorpo = "Estamos muito felizes em ter-te por aqui. Para começares com o pé direito, preparámos um presente especial para ti.";
+            iaCta = "PEGAR NO MEU PRESENTE";
+        } else if (pedidoUsuario.includes('promo') || pedidoUsuario.includes('desconto')) {
+            iaAssunto = "As ofertas imperdíveis chegaram! 🚨";
+            iaCorpo = `Preparámos uma seleção incrível de produtos da ${dadosCampanha.cliente} com preços que não vais acreditar. Corre antes que acabe!`;
+            iaCta = "APROVEITAR OFERTAS";
+        } else {
+            iaAssunto = "Esqueceu-se de algo no carrinho! 🛒";
+            iaCorpo = `Olá! Reparamos que deixou alguns itens fantásticos no site da ${dadosCampanha.cliente}. Aproveite antes que o stock acabe!`;
+            iaCta = "FINALIZAR COMPRA AGORA";
+        }
     }
 
+    // Aplica os textos nos inputs da coluna da esquerda
     document.getElementById('ia-assunto').value = iaAssunto;
     document.getElementById('ia-corpo').value = iaCorpo;
     document.getElementById('ia-cta').value = iaCta;
 
-    document.getElementById('preview-title').innerText = iaAssunto.replace(' 👔', '').replace(' 🛒', '');
+    // Aplica os textos no preview do e-mail
+    document.getElementById('preview-title').innerText = iaAssunto.replace(' 👔', '').replace(' 🛒', '').replace(' 🎉', '').replace(' 🚨', '');
     document.getElementById('preview-text').innerText = iaCorpo;
     document.getElementById('preview-btn').innerText = iaCta;
 }
@@ -116,7 +153,7 @@ function enviarMensagemChat() {
     const idPensando = 'msg-' + Date.now();
     chatHistory.innerHTML += `
         <div id="${idPensando}" class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] opacity-70 animate-pulse">
-            A digitar...
+            A processar...
         </div>
     `;
     chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -129,13 +166,13 @@ function enviarMensagemChat() {
         if (msgLower.includes('curto') || msgLower.includes('resuma')) {
             document.getElementById('ia-corpo').value = "O homem em movimento não perde tempo. Garanta as suas escolhas com 10% OFF usando o código ARAMIS10.";
             document.getElementById('preview-text').innerText = document.getElementById('ia-corpo').value;
-            respostaIA = "Deixei o texto mais direto e foquei no desconto!";
+            respostaIA = "Deixei o texto mais direto e foquei-me no desconto!";
         } else if (msgLower.includes('assunto') || msgLower.includes('título')) {
             document.getElementById('ia-assunto').value = "As suas escolhas exclusivas aguardam 👔";
             document.getElementById('preview-title').innerText = "As suas escolhas exclusivas aguardam";
             respostaIA = "Atualizei o assunto para algo mais exclusivo.";
         } else if (msgLower.includes('botão') || msgLower.includes('cta')) {
-            document.getElementById('ia-cta').value = "GARANTIR MEUS 10% OFF";
+            document.getElementById('ia-cta').value = "GARANTIR OS MEUS 10% OFF";
             document.getElementById('preview-btn').innerText = document.getElementById('ia-cta').value;
             respostaIA = "Mudei o botão para gerar mais urgência.";
         }
@@ -259,29 +296,31 @@ document.getElementById('hidden-file-upload').addEventListener('change', functio
 const containerBuilder = document.getElementById('email-builder-container');
 let draggedItem = null;
 
-document.querySelectorAll('.builder-block').forEach(block => {
-    block.addEventListener('dragstart', function(e) {
-        draggedItem = this;
-        setTimeout(() => this.classList.add('opacity-50'), 0);
-    });
+if (containerBuilder) {
+    document.querySelectorAll('.builder-block').forEach(block => {
+        block.addEventListener('dragstart', function(e) {
+            draggedItem = this;
+            setTimeout(() => this.classList.add('opacity-50'), 0);
+        });
 
-    block.addEventListener('dragend', function() {
-        setTimeout(() => {
-            this.classList.remove('opacity-50');
-            draggedItem = null;
-        }, 0);
-    });
+        block.addEventListener('dragend', function() {
+            setTimeout(() => {
+                this.classList.remove('opacity-50');
+                draggedItem = null;
+            }, 0);
+        });
 
-    block.addEventListener('dragover', function(e) {
-        e.preventDefault(); 
-        const afterElement = getDragAfterElement(containerBuilder, e.clientY);
-        if (afterElement == null) {
-            containerBuilder.appendChild(draggedItem);
-        } else {
-            containerBuilder.insertBefore(draggedItem, afterElement);
-        }
+        block.addEventListener('dragover', function(e) {
+            e.preventDefault(); 
+            const afterElement = getDragAfterElement(containerBuilder, e.clientY);
+            if (afterElement == null) {
+                containerBuilder.appendChild(draggedItem);
+            } else {
+                containerBuilder.insertBefore(draggedItem, afterElement);
+            }
+        });
     });
-});
+}
 
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.builder-block:not(.opacity-50)')];
