@@ -49,11 +49,11 @@ function goBack() { if (currentStep > 1) goToStep(currentStep - 1); }
 async function invocarGeminiIA(briefing) {
     const texto = briefing.toLowerCase();
     
-    // Insumos lidos (Usa fallback de mercado se o usuário não fizer upload)
+    // Insumos lidos
     const urlLogo = assetsCarregados.imagens.length > 0 ? assetsCarregados.imagens[0] : "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Health_icon.svg/1024px-Health_icon.svg.png";
     const urlHero = assetsCarregados.imagens.length > 1 ? assetsCarregados.imagens[1] : (assetsCarregados.imagens[0] || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80");
 
-    // CASO 1: Cenário Assistencial/Médico/Exames (Match Fiel com "Expressões de Marca.pdf")
+    // CASO 1: Cenário Assistencial/Médico/Exames
     if (texto.includes('exame') || texto.includes('jejum') || texto.includes('médico') || texto.includes('paciente') || texto.includes('consulta')) {
         return {
             Email: {
@@ -61,19 +61,12 @@ async function invocarGeminiIA(briefing) {
                 title: "Importante: Orientações para o seu exame",
                 corpo: `Para garantir a qualidade técnica e evitar reagendamentos da sua consulta, é essencial seguir rigorosamente as orientações abaixo:\n\n✔️ Jejum mínimo de 4 horas antes do exame.\n✔️ A ingestão moderada de água é permitida.\n✔️ Suas medicações habituais podem ser tomadas com pouca água.\n\n⚠️ Documentos Obrigatórios:\nNão esqueça de levar um documento oficial com foto e CPF.\n\nChegue com antecedência ao Centro Médico.`,
                 cta: "VER DETALHES E ENDEREÇO",
-                tema: { 
-                    titleColor: "#3A10E0", 
-                    btnBg: "#3A10E0", 
-                    btnColor: "#ffffff" 
-                },
-                logoUrl: urlLogo,
-                heroUrl: urlHero
+                tema: { titleColor: "#3A10E0", btnBg: "#3A10E0", btnColor: "#ffffff" },
+                logoUrl: urlLogo, heroUrl: urlHero
             },
             WhatsApp: {
                 msg: "Olá! 🏥 Lembrete assistencial da dr.consulta: Seu exame é amanhã.\n\n⚠️ *PREPARO OBRIGATÓRIO:*\n• Jejum mínimo de 4 horas.\n• Água moderada é permitida.\n• Remédios de rotina podem ser tomados.\n\n📄 Traga documento com foto e CPF.\nNos vemos amanhã!",
-                enviarImagem: true,
-                mediaUrl: urlHero,
-                logoUrl: urlLogo
+                enviarImagem: true, mediaUrl: urlHero, logoUrl: urlLogo
             },
             SMS: {
                 msg: "dr.consulta: Lembrete do seu exame amanha. Necessario jejum de 4h (agua permitida). Traga doc original c/ foto e CPF.",
@@ -95,14 +88,11 @@ async function invocarGeminiIA(briefing) {
                 corpo: "Notamos que o seu estilo está em alta!\n\nCom base nas suas preferências, separamos peças exclusivas que acabaram de chegar. O homem em movimento está sempre um passo à frente.\n\nGaranta as suas escolhas hoje com vantagens únicas para clientes VIP.",
                 cta: "GARANTIR COLEÇÃO",
                 tema: { titleColor: "#111827", btnBg: "#000000", btnColor: "#ffffff" },
-                logoUrl: urlLogo,
-                heroUrl: urlHero
+                logoUrl: urlLogo, heroUrl: urlHero
             },
             WhatsApp: {
                 msg: "Olá! ✨ As novidades da nossa marca já estão disponíveis.\n\nVenha garantir suas peças exclusivas antes que acabem! 👗🛍️\nAcesse nosso catálogo VIP: link.com/loja",
-                enviarImagem: true,
-                mediaUrl: urlHero,
-                logoUrl: urlLogo
+                enviarImagem: true, mediaUrl: urlHero, logoUrl: urlLogo
             },
             SMS: {
                 msg: "Marca VIP: Nova Colecao liberada! Garanta suas pecas com 10% OFF usando o codigo VIP10. Acesse link.com/loja",
@@ -128,7 +118,7 @@ async function processarComIA() {
     if(briefingAtual.trim() === "") { alert("Insira o briefing para a IA analisar."); return; }
 
     document.getElementById('loading-overlay').classList.remove('hidden-step');
-    document.getElementById('loading-text').innerHTML = "Lendo anexos e Brandbook (PDF)...<br>Extraindo paleta de cores e logos fiéis...";
+    document.getElementById('loading-text').innerHTML = "Lendo anexos e Brandbook...<br>Extraindo paleta de cores e logos fiéis...";
     
     conteudoGeradoIA = await invocarGeminiIA(briefingAtual);
 
@@ -140,7 +130,7 @@ async function processarComIA() {
 }
 
 // ==========================================
-// ESTÚDIO MULTICANAL E RENDERING DE ALTA FIDELIDADE
+// ESTÚDIO MULTICANAL E RENDERING
 // ==========================================
 function configurarEstudioMulticanal() {
     const tabsContainer = document.getElementById('channel-tabs');
@@ -184,7 +174,7 @@ function alternarCanal(canal, btnElement) {
                 <label class="block text-xs font-bold text-gray-500 mb-1">Título Interno (H1)</label>
                 <input type="text" id="ia-title" class="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 py-1 text-sm font-bold text-gray-800" value="${dados.title}" oninput="sincronizarCopy()">
             </div>
-            <div class="flex-1 flex flex-col min-h-[200px]">
+            <div class="flex-1 flex flex-col min-h-[150px]">
                 <label class="block text-xs font-bold text-gray-500 mb-1">Corpo do E-mail</label>
                 <textarea id="ia-corpo" class="w-full flex-1 border border-gray-300 rounded-md p-3 bg-white text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed" oninput="sincronizarCopy()">${dados.corpo}</textarea>
             </div>
@@ -220,7 +210,7 @@ function alternarCanal(canal, btnElement) {
         copyContainer.innerHTML = `
             <div class="flex-1 flex flex-col">
                 <label class="block text-xs font-bold text-gray-500 mb-2">Mensagem (Formatação WhatsApp suportada)</label>
-                <textarea id="ia-whatsapp-msg" class="w-full flex-1 border border-gray-300 rounded-lg p-3 bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" oninput="sincronizarCopy()">${dados.msg}</textarea>
+                <textarea id="ia-whatsapp-msg" class="w-full flex-1 border border-gray-300 rounded-lg p-3 bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm h-[200px]" oninput="sincronizarCopy()">${dados.msg}</textarea>
             </div>
         `;
         sincronizarCopy();
@@ -233,7 +223,7 @@ function alternarCanal(canal, btnElement) {
         copyContainer.innerHTML = `
             <div class="flex-1 flex flex-col">
                 <label class="block text-xs font-bold text-gray-500 mb-2">Mensagem SMS (Atenção ao limite de 160 caracteres)</label>
-                <textarea id="ia-sms-msg" class="w-full flex-1 border border-gray-300 rounded-lg p-3 bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" oninput="sincronizarCopy()">${dados.msg}</textarea>
+                <textarea id="ia-sms-msg" class="w-full flex-1 border border-gray-300 rounded-lg p-3 bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm h-[150px]" oninput="sincronizarCopy()">${dados.msg}</textarea>
                 <span class="text-[10px] text-gray-500 mt-1 text-right" id="sms-counter">0/160</span>
             </div>
         `;
@@ -251,7 +241,7 @@ function alternarCanal(canal, btnElement) {
             </div>
             <div class="flex-1 flex flex-col mt-4">
                 <label class="block text-xs font-bold text-gray-500 mb-2">Corpo da Notificação</label>
-                <textarea id="ia-push-msg" class="w-full flex-1 border border-gray-300 rounded-lg p-3 bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" oninput="sincronizarCopy()">${dados.msg}</textarea>
+                <textarea id="ia-push-msg" class="w-full flex-1 border border-gray-300 rounded-lg p-3 bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm h-[100px]" oninput="sincronizarCopy()">${dados.msg}</textarea>
             </div>
         `;
         sincronizarCopy();
@@ -280,36 +270,105 @@ function sincronizarCopy() {
 }
 
 // ==========================================
-// UPLOADS E LINKS (STEP 1)
+// CHAT GEMINI - FUNCIONALIDADE
+// ==========================================
+function enviarMensagemChat() {
+    const inputEl = document.getElementById('chat-input');
+    const mensagem = inputEl.value.trim();
+    if (!mensagem) return;
+
+    const chatHistory = document.getElementById('chat-history');
+    if(chatHistory) {
+        chatHistory.innerHTML += `<div class="bg-gray-200 text-gray-800 p-2 rounded-lg rounded-tr-none self-end max-w-[90%] shadow-sm">${mensagem}</div>`;
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+    
+    inputEl.value = '';
+
+    // Simula tempo de raciocínio da IA
+    const idPensando = 'msg-' + Date.now();
+    if(chatHistory) {
+        chatHistory.innerHTML += `<div id="${idPensando}" class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] opacity-70 animate-pulse">Ajustando criativo...</div>`;
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    setTimeout(() => {
+        const pensandoEl = document.getElementById(idPensando);
+        if(pensandoEl) pensandoEl.remove();
+
+        let respostaIA = "Pronto! O ajuste foi aplicado no preview.";
+        const msgLower = mensagem.toLowerCase();
+
+        // Aplica ajustes reais baseados em comandos simples (Simulação de LLM)
+        if (canalAtivo === 'Email') {
+            const tituloEl = document.getElementById('ia-title');
+            const corpoEl = document.getElementById('ia-corpo');
+            if(tituloEl && corpoEl) {
+                if (msgLower.includes('urgente') || msgLower.includes('atenção')) {
+                    tituloEl.value = "⚠️ " + tituloEl.value;
+                    corpoEl.value += "\n\nPor favor, não se atrase. Sua presença é imprescindível para a realização do exame.";
+                } else if (msgLower.includes('curto') || msgLower.includes('resuma')) {
+                    corpoEl.value = "Lembrete: Seu exame é amanhã.\n✔️ Jejum de 4h\n✔️ Água permitida\n✔️ Leve documento oficial com foto.\n\nChegue com antecedência!";
+                } else {
+                    corpoEl.value += "\n\n" + mensagem;
+                }
+            }
+        } else if (canalAtivo === 'WhatsApp') {
+            const wppEl = document.getElementById('ia-whatsapp-msg');
+            if(wppEl) {
+                if (msgLower.includes('urgente') || msgLower.includes('atenção')) {
+                    wppEl.value = "🚨 *MENSAGEM URGENTE*\n\n" + wppEl.value;
+                } else if (msgLower.includes('curto')) {
+                    wppEl.value = "Olá! 🏥 Seu exame é amanhã. Lembre-se do jejum de 4h. Nos vemos lá!";
+                } else {
+                    wppEl.value += "\n\n" + mensagem;
+                }
+            }
+        } else if (canalAtivo === 'SMS') {
+            const smsEl = document.getElementById('ia-sms-msg');
+            if(smsEl) smsEl.value = "URGENTE: " + smsEl.value;
+        } else if (canalAtivo === 'Web Push' || canalAtivo === 'App Push') {
+            const pushEl = document.getElementById('ia-push-msg');
+            if(pushEl) pushEl.value += " 🚨";
+        }
+
+        sincronizarCopy();
+
+        if(chatHistory) {
+            chatHistory.innerHTML += `<div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] shadow-sm">${respostaIA}</div>`;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    }, 1200);
+}
+
+// ==========================================
+// UPLOADS, LINKS E PRINTS (STEP 1)
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Upload Tradicional de Arquivos
     const fileInput = document.getElementById('upload-insumos');
     if(fileInput) {
         fileInput.addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            const label = document.getElementById('label-insumos-arquivos');
-            const thumbContainer = document.getElementById('thumbnails-container');
-            
-            if(files.length > 0) {
-                label.innerHTML = `${files.length} arquivo(s) preparado(s) para a IA ✅<br><span class="text-xs text-green-700">Logo e assets identificados!</span>`;
-                label.classList.replace('text-blue-900', 'text-green-600');
-                
-                files.forEach(file => {
-                    if(file.type.startsWith('image/')) {
-                        const url = URL.createObjectURL(file);
-                        assetsCarregados.imagens.push(url);
-                        
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.className = "w-12 h-12 object-cover rounded border border-gray-300 shadow-sm";
-                        thumbContainer.appendChild(img);
-                    }
-                });
-            }
+            processarUploadsInsumos(e.target.files);
         });
     }
 
+    // 2. Colar Print Screens na Tela (Global no Step 1)
+    document.addEventListener('paste', function(e) {
+        if (currentStep !== 1) return;
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        let files = [];
+        for (let index in items) {
+            const item = items[index];
+            if (item.kind === 'file' && item.type.startsWith('image/')) {
+                files.push(item.getAsFile());
+            }
+        }
+        if(files.length > 0) processarUploadsInsumos(files);
+    });
+
+    // 3. Listener do Enter para inclusão de Links
     const linkInput = document.getElementById('input-insumo-link');
     if(linkInput) {
         linkInput.addEventListener('keypress', function(e) {
@@ -319,7 +378,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // 4. Listener do Enter para o Chat Gemini (Step 2)
+    const chatInput = document.getElementById('chat-input');
+    if(chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensagemChat();
+            }
+        });
+    }
 });
+
+// Helper para processar qualquer upload (Botão ou Ctrl+V)
+function processarUploadsInsumos(filesArray) {
+    const files = Array.from(filesArray);
+    const label = document.getElementById('label-insumos-arquivos');
+    const thumbContainer = document.getElementById('thumbnails-container');
+    
+    if(files.length > 0) {
+        label.innerHTML = `${assetsCarregados.imagens.length + files.length} arquivo(s) inserido(s) com sucesso! ✅<br><span class="text-xs text-green-700">Imagens/Prints guardados para a IA</span>`;
+        label.classList.replace('text-blue-900', 'text-green-600');
+        
+        files.forEach(file => {
+            if(file.type.startsWith('image/')) {
+                const url = URL.createObjectURL(file);
+                assetsCarregados.imagens.push(url);
+                
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = "w-12 h-12 object-cover rounded border border-gray-300 shadow-sm";
+                if(thumbContainer) thumbContainer.appendChild(img);
+            }
+        });
+    }
+}
 
 function adicionarLinkInsumo() {
     const inputUrl = document.getElementById('input-insumo-link');
@@ -362,7 +456,7 @@ function atualizarListaLinks() {
 }
 
 // ==========================================
-// EXPORTAÇÃO (STEP 3) - ATUALIZADO COM PREVIEWS E ASSETS
+// EXPORTAÇÃO (STEP 3) - INTACTO
 // ==========================================
 function gerarTelaExportacao() {
     const container = document.getElementById('export-container');
@@ -375,7 +469,6 @@ function gerarTelaExportacao() {
         const dados = conteudoGeradoIA[chaveIA] || conteudoGeradoIA['Email'];
 
         if(canal === 'Email') {
-            // HTML final atualizado a partir dos campos do editor no step 2
             const htmlCode = `
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; font-family: Arial, sans-serif;">
   <tr>
