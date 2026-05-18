@@ -15,8 +15,8 @@
             <h1 class="text-xl font-bold text-gray-800">Caaqui <span class="text-sm font-normal text-gray-500">Workspace</span></h1>
         </div>
         <div class="flex gap-4 text-sm text-gray-500">
-            <span id="badge-step-1" class="font-bold text-blue-600">1. Briefing</span>
-            <span id="badge-step-2">2. Estúdio</span>
+            <span id="badge-step-1" class="font-bold text-blue-600">1. Briefing & Insumos</span>
+            <span id="badge-step-2">2. Estúdio Multicanal</span>
             <span id="badge-step-3">3. Exportação</span>
         </div>
     </header>
@@ -24,233 +24,156 @@
     <main class="flex-1 overflow-auto p-6 flex justify-center">
         
         <section id="step-1" class="w-full max-w-3xl bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-2xl font-bold mb-6">Setup & Briefing</h2>
+            <h2 class="text-2xl font-bold mb-6">Setup da Campanha</h2>
             
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Cliente / Marca</label>
-                    <input type="text" id="input-cliente" placeholder="Ex: Caaqui, Aramis..." class="w-full border rounded p-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Destino do Criativo</label>
-                    <select id="input-destino" class="w-full border rounded p-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="Insider One">Insider One</option>
-                        <option value="Salesforce Marketing Cloud">Salesforce Marketing Cloud</option>
-                        <option value="HubSpot">HubSpot</option>
-                        <option value="RD Station">RD Station</option>
-                    </select>
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-gray-700 mb-3">1. Canais de Comunicação</label>
+                <div class="flex flex-wrap gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition">
+                        <input type="checkbox" name="canais" value="Email" class="w-4 h-4 text-blue-600" checked> E-mail
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition">
+                        <input type="checkbox" name="canais" value="WhatsApp" class="w-4 h-4 text-blue-600"> WhatsApp
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition">
+                        <input type="checkbox" name="canais" value="SMS" class="w-4 h-4 text-blue-600"> SMS
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition">
+                        <input type="checkbox" name="canais" value="Web Push" class="w-4 h-4 text-blue-600"> Web Push
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition">
+                        <input type="checkbox" name="canais" value="App Push" class="w-4 h-4 text-blue-600"> App Push
+                    </label>
                 </div>
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-1">Link do Site <span class="text-xs text-gray-400 font-normal ml-1">(Opcional - A IA lerá cores, fontes e tom de voz)</span></label>
-                <div class="relative">
-                    <input type="url" id="input-url" placeholder="https://www.site-do-cliente.com.br" class="w-full border rounded p-2 pl-10 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                <label class="block text-sm font-bold text-gray-700 mb-2">2. Briefing</label>
+                <textarea id="input-briefing" rows="4" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Descreva os objetivos da campanha, tom de voz, público-alvo, ofertas ou cole o texto base aqui..."></textarea>
+                <div class="flex justify-end mt-2">
+                    <button type="button" onclick="gerarBriefingIA()" class="text-xs bg-purple-100 text-purple-700 hover:bg-purple-200 py-2 px-4 rounded-lg flex items-center gap-1 transition font-bold border border-purple-200 shadow-sm">
+                        ✨ Criar Briefing com IA a partir de tópicos
+                    </button>
                 </div>
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-1">Objetivo da Campanha (Prompt)</label>
-                <textarea id="input-prompt" rows="3" class="w-full border rounded p-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Criar uma campanha de resgate de carrinho focada em clientes que abandonaram sapatos de inverno. Tom de urgência."></textarea>
             </div>
 
             <div class="mb-8">
-                <label class="block text-sm font-medium mb-1">Referências (Upload) <span class="text-xs text-gray-400 font-normal ml-1">(Opcional)</span></label>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
-                    <p class="text-gray-500">Arraste ficheiros aqui ou clique para fazer upload</p>
-                    <p class="text-xs text-gray-400 mt-2">PDFs, Imagens (JPG, PNG), DOCx</p>
+                <label class="block text-sm font-bold text-gray-700 mb-2">3. Insumos / Guide <span class="text-red-500">*Primordial para a IA</span></label>
+                <div class="border-2 border-dashed border-blue-300 rounded-xl p-10 text-center bg-blue-50 hover:bg-blue-100 transition cursor-pointer relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-blue-500/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                    <svg class="w-12 h-12 mx-auto text-blue-500 mb-3 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <p class="text-blue-900 font-bold relative z-10 text-lg">Arraste todos os insumos da campanha aqui</p>
+                    <p class="text-sm text-blue-700 mt-2 relative z-10 font-medium">KVs, Brandbooks, Fontes, Logos, Paleta de Cores (Imagens, PDFs, DOCs)</p>
+                    <p class="text-xs text-gray-500 mt-4 italic relative z-10">*A IA processará estas referências visuais e textuais para gerar as artes, HTML e copies perfeitamente alinhados à marca.</p>
                 </div>
             </div>
 
-            <div class="flex justify-end mt-8">
-                <button onclick="processarComIA()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow transition flex items-center gap-2">
-                    Gerar Estrutura com IA 🪄
+            <div class="flex justify-end mt-8 border-t pt-6">
+                <button onclick="processarComIA()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition flex items-center gap-2 text-lg">
+                    Processar Insumos e Gerar Criativos 🪄
                 </button>
             </div>
         </section>
 
-        <section id="step-2" class="hidden-step w-full max-w-6xl flex gap-6">
+        <section id="step-2" class="hidden-step w-full max-w-7xl flex flex-col gap-4">
             
-            <div class="w-1/3 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[70vh]">
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">✍️ Copy <span class="text-xs bg-green-100 text-green-700 py-1 px-2 rounded">IA</span></h2>
-                
-                <div class="mb-4">
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Assunto do E-mail</label>
-                    <input type="text" id="ia-assunto" class="w-full border-b focus:outline-none focus:border-blue-500 py-1 font-medium text-sm">
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Corpo do Texto</label>
-                    <textarea id="ia-corpo" class="w-full h-24 border rounded p-2 bg-gray-50 text-sm focus:outline-none"></textarea>
+            <div id="channel-tabs" class="flex gap-2 border-b border-gray-200 pb-2 overflow-x-auto">
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Botão (CTA)</label>
-                    <input type="text" id="ia-cta" class="w-full border-b focus:outline-none focus:border-blue-500 py-1 text-sm font-bold">
-                </div>
-
-                <div class="mt-auto border-t pt-4 flex flex-col flex-1 overflow-hidden">
-                    <h3 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">💬 Refinar com IA</h3>
-                    <div id="chat-history" class="flex-1 bg-gray-50 border border-gray-100 rounded p-3 overflow-y-auto mb-2 text-xs flex flex-col gap-2">
-                        <div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%]">
-                            Como posso ajustar este criativo para si?
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="text" id="chat-input" onkeypress="verificarEnter(event)" placeholder="Ex: Deixe o texto mais curto..." class="flex-1 border border-gray-300 rounded p-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button onclick="enviarMensagemChat()" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="w-2/3 bg-gray-100 p-6 rounded-xl shadow-inner border border-gray-200 flex flex-col h-[70vh]">
-                
-                <h2 class="w-full text-lg font-bold mb-4 flex items-center justify-between text-gray-600 shrink-0">
-                    <div class="flex items-center gap-3">
-                        <span>🎨 Preview do Layout</span>
-                        <button onclick="abrirModalPreview()" class="text-xs bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-1 px-3 rounded flex items-center gap-1 transition shadow-sm">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-                            Ampliar
-                        </button>
-                    </div>
-                    <span id="brand-indicator" class="text-xs bg-black text-white py-1 px-3 rounded-full">A carregar a Marca...</span>
-                </h2>
-                
-                <div class="flex-1 overflow-y-auto w-full flex justify-center pb-8 relative" id="preview-scroll-container">
+            <div class="flex gap-6 flex-1">
+                <div class="w-1/3 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[65vh]">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">✍️ Textos Gerados <span class="text-xs bg-green-100 text-green-700 py-1 px-2 rounded">IA</span></h2>
                     
-                    <div id="cms-toolbar" class="hidden absolute z-50 bg-white border border-gray-200 text-gray-800 p-2 rounded shadow-xl flex gap-2 items-center text-sm transform -translate-y-full -translate-x-1/2 mt-[-10px]">
-                        <select onchange="formatText('fontName', this.value)" class="border border-gray-300 p-1 rounded focus:outline-none text-xs">
-                            <option value="Arial">Arial</option>
-                            <option value="Georgia">Georgia</option>
-                            <option value="Courier New">Courier</option>
-                            <option value="Times New Roman">Times</option>
-                            <option value="Verdana">Verdana</option>
-                        </select>
-                        
-                        <select onchange="formatText('fontSize', this.value)" class="border border-gray-300 p-1 rounded focus:outline-none text-xs">
-                            <option value="2">Pequeno</option>
-                            <option value="3" selected>Normal</option>
-                            <option value="5">Grande</option>
-                            <option value="6">Muito Grande</option>
-                            <option value="7">Gigante</option>
-                        </select>
-
-                        <div class="w-px h-5 bg-gray-300 mx-1"></div>
-                        
-                        <button onclick="formatText('bold')" class="p-1 hover:bg-gray-100 rounded font-bold w-6 h-6 flex items-center justify-center" title="Negrito">B</button>
-                        <button onclick="formatText('italic')" class="p-1 hover:bg-gray-100 rounded italic font-serif w-6 h-6 flex items-center justify-center" title="Itálico">I</button>
-                        <button onclick="formatText('underline')" class="p-1 hover:bg-gray-100 rounded underline w-6 h-6 flex items-center justify-center" title="Sublinhado">U</button>
-                        
-                        <div class="w-px h-5 bg-gray-300 mx-1"></div>
-                        
-                        <div class="flex items-center gap-1" title="Cor do Texto">
-                            <span class="font-bold text-xs">A</span>
-                            <input type="color" onchange="formatText('foreColor', this.value)" class="w-5 h-5 cursor-pointer border-0 p-0 bg-transparent">
+                    <div id="copy-fields-container" class="flex-1 flex flex-col">
                         </div>
-                    </div>
 
-                    <div id="email-builder-container" class="w-full max-w-md bg-white shadow-xl rounded h-max flex flex-col relative mt-8">
-                        
-                        <div class="builder-block text-center py-6 border-b cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
-                            <h1 id="preview-logo" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('logo')" class="text-2xl font-serif tracking-widest uppercase font-bold text-gray-900 outline-none rounded px-2 mx-auto inline-block cursor-text">MARCA</h1>
-                        </div>
-                        
-                        <div class="builder-block relative group cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
-                            <img id="hero-image-preview" src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=600&q=80" alt="Hero" class="w-full h-64 object-cover pointer-events-none">
-                            <div onclick="abrirUploadImagem('hero-image-preview')" class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center transition-all cursor-pointer">
-                                <span class="text-white text-sm font-bold flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                    Fazer Upload
-                                </span>
+                    <div class="mt-auto border-t pt-4 flex flex-col overflow-hidden h-40">
+                        <h3 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">💬 Refinar com IA</h3>
+                        <div id="chat-history" class="flex-1 bg-gray-50 border border-gray-100 rounded p-3 overflow-y-auto mb-2 text-xs flex flex-col gap-2">
+                            <div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%]">
+                                Precisa de ajustes neste canal? Pode pedir!
                             </div>
                         </div>
-                        
-                        <div class="builder-block p-8 text-center cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
-                            <h2 id="preview-title" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('title')" class="text-xl font-medium text-gray-900 mb-4 outline-none cursor-text rounded px-1">O seu estilo não espera.</h2>
-                            <p id="preview-text" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('text')" class="text-gray-600 text-sm mb-6 leading-relaxed outline-none cursor-text rounded px-1">Notámos que selecionou peças exclusivas, mas não finalizou a compra. O carrinho foi guardado para si.</p>
-                            <button id="preview-btn" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" oninput="sincronizarParaEsquerda('btn')" class="bg-black text-white px-8 py-3 text-sm font-bold tracking-wider outline-none cursor-text inline-block hover:opacity-80 transition" style="background-color: #000000; color: #ffffff;">VOLTAR PARA O CARRINHO</button>
+                        <div class="flex gap-2">
+                            <input type="text" id="chat-input" onkeypress="verificarEnter(event)" placeholder="Ex: Deixe mais urgente..." class="flex-1 border border-gray-300 rounded p-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button onclick="enviarMensagemChat()" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                            </button>
                         </div>
+                    </div>
+                </div>
+
+                <div class="w-2/3 bg-gray-100 p-6 rounded-xl shadow-inner border border-gray-200 flex flex-col h-[65vh] relative overflow-hidden">
+                    
+                    <h2 class="w-full text-lg font-bold mb-4 flex items-center justify-between text-gray-600 shrink-0">
+                        <span>🎨 Preview Visual</span>
+                        <span id="brand-indicator" class="text-xs bg-blue-100 text-blue-800 border border-blue-200 py-1 px-3 rounded-full font-bold">Insumos Carregados</span>
+                    </h2>
+                    
+                    <div class="flex-1 overflow-y-auto w-full flex justify-center pb-8 relative" id="preview-scroll-container">
                         
-                        <div class="builder-block bg-gray-50 p-6 border-t cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" draggable="true">
-                            <p class="text-center text-xs text-gray-500 uppercase tracking-widest mb-4 outline-none cursor-text hover:ring-2 hover:ring-blue-400 rounded" contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()">Os seus itens guardados</p>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="text-center group relative">
-                                    <img id="prod1-img" src="https://images.unsplash.com/photo-1594938298596-70f58bf4dd4a?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 transition pointer-events-none">
-                                    <div onclick="abrirUploadImagem('prod1-img')" class="absolute top-0 left-0 w-full h-32 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer transition">
-                                        <span class="text-white text-xs font-bold">Upload</span>
-                                    </div>
-                                    <p contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" class="text-xs font-bold outline-none cursor-text rounded px-1">Camisa Oxford</p>
+                        <div id="preview-email" class="preview-channel w-full max-w-md bg-white shadow-xl rounded h-max flex flex-col relative mt-4">
+                            <div class="builder-block text-center py-6 border-b cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all">
+                                <h1 id="preview-logo" contenteditable="true" class="text-2xl font-serif tracking-widest uppercase font-bold text-gray-900 outline-none rounded px-2 mx-auto inline-block">LOGO</h1>
+                            </div>
+                            <div class="builder-block relative group cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all">
+                                <img id="hero-image-preview" src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=600&q=80" alt="Hero KV" class="w-full h-64 object-cover pointer-events-none">
+                                <div onclick="abrirUploadImagem('hero-image-preview')" class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center transition-all cursor-pointer">
+                                    <span class="text-white text-sm font-bold">Trocar KV / Arte</span>
                                 </div>
-                                <div class="text-center group relative">
-                                    <img id="prod2-img" src="https://images.unsplash.com/photo-1550995694-3f5f4a7e1bd2?auto=format&fit=crop&w=300&q=80" class="w-full h-32 object-cover mb-2 transition pointer-events-none">
-                                    <div onclick="abrirUploadImagem('prod2-img')" class="absolute top-0 left-0 w-full h-32 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer transition">
-                                        <span class="text-white text-xs font-bold">Upload</span>
-                                    </div>
-                                    <p contenteditable="true" onfocus="showToolbar(this)" onblur="hideToolbar()" class="text-xs font-bold outline-none cursor-text rounded px-1">Calças Chino</p>
+                            </div>
+                            <div class="builder-block p-8 text-center cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all">
+                                <h2 id="preview-title" contenteditable="true" class="text-xl font-medium text-gray-900 mb-4 outline-none">Título da Campanha</h2>
+                                <p id="preview-text" contenteditable="true" class="text-gray-600 text-sm mb-6 leading-relaxed outline-none">Corpo do e-mail gerado com base no briefing e no tom de voz lido dos insumos.</p>
+                                <button id="preview-btn" contenteditable="true" class="bg-black text-white px-8 py-3 text-sm font-bold tracking-wider outline-none inline-block">CALL TO ACTION</button>
+                            </div>
+                        </div>
+
+                        <div id="preview-mobile" class="preview-channel hidden w-full max-w-sm bg-gray-200 border-8 border-gray-800 rounded-[2.5rem] h-[600px] flex flex-col relative mt-4 shadow-2xl overflow-hidden">
+                            <div class="bg-green-600 text-white p-4 pt-8 text-center font-bold text-sm shadow flex items-center gap-2">
+                                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-green-600">L</div>
+                                <span id="mobile-header-name">Sua Marca</span>
+                            </div>
+                            <div class="flex-1 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-cover p-4 flex flex-col gap-2 overflow-y-auto">
+                                <div class="bg-white p-3 rounded-lg rounded-tl-none text-sm text-gray-800 shadow-sm self-start max-w-[85%] whitespace-pre-wrap" id="mobile-preview-text">
+                                    Mensagem de WhatsApp/SMS gerada aqui.
                                 </div>
                             </div>
                         </div>
-                    </div>
 
+                    </div>
                     <input type="file" id="hidden-file-upload" accept="image/*" class="hidden">
                 </div>
             </div>
         </section>
 
         <section id="step-3" class="hidden-step w-full max-w-5xl bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-2xl font-bold mb-6">Pronto para Envio</h2>
-            <div class="flex gap-6">
-                <div class="w-full flex flex-col">
-                    <label class="font-medium mb-2 flex justify-between items-center">
-                        <span>Código HTML Otimizado</span>
-                        <span id="tag-destino" class="text-xs bg-blue-100 text-blue-800 font-bold py-1 px-3 rounded-full border border-blue-200">Tag: Destino</span>
-                    </label>
-                    <textarea class="w-full h-64 border rounded-lg p-4 bg-gray-900 text-green-400 font-mono text-sm mb-6" readonly>
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb;">
-  <tr>
-    <td align="center" style="padding: 40px 0;">
-      </td>
-  </tr>
-</table>
-                    </textarea>
-                    
-                    <div class="flex gap-4">
-                        <button class="flex-1 border-2 border-gray-300 py-4 rounded-lg hover:bg-gray-50 transition font-bold text-gray-700">Baixar ZIP (HTML + Imagens)</button>
-                        <button id="btn-enviar-crm" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg shadow-lg transition font-bold text-lg">
-                            Enviar para o CRM 🚀
-                        </button>
-                    </div>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                Pacote de Campanha Pronto 🎉
+            </h2>
+            
+            <div id="export-container" class="flex flex-col gap-6">
                 </div>
+
+            <div class="flex justify-end gap-4 mt-10 pt-6 border-t border-gray-100">
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-6 rounded-lg font-bold transition">Nova Campanha</button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-lg shadow-lg transition font-bold text-lg flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Baixar Todo o Pacote (.ZIP)
+                </button>
             </div>
         </section>
     </main>
 
-    <footer id="footer-actions" class="bg-white border-t p-4 flex justify-between items-center hidden-step">
+    <footer id="footer-actions" class="bg-white border-t p-4 flex justify-between items-center hidden-step z-10 relative">
         <button onclick="goBack()" class="text-gray-500 hover:text-gray-800 px-4 py-2 font-medium">Voltar</button>
-        <button id="btn-next" onclick="goToStep(3)" class="bg-gray-800 hover:bg-black text-white px-6 py-2 rounded font-medium shadow">Avançar para Exportação</button>
+        <button id="btn-next" onclick="goToStep(3)" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded font-bold shadow transition">Aprovar e Exportar</button>
     </footer>
 
-    <div id="loading-overlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step">
+    <div id="loading-overlay" class="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step">
         <div class="loading-spinner border-4 border-gray-200 border-t-blue-600 rounded-full w-16 h-16 mb-6"></div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">A IA da Caaqui está a trabalhar...</h2>
-        <p id="loading-text" class="text-gray-600 font-medium">A analisar referências...</p>
-    </div>
-
-    <div id="modal-preview" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step p-6">
-        <div class="w-full max-w-4xl flex justify-between items-center mb-4 text-white">
-            <h3 class="text-xl font-bold flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                Preview Final (Ecrã Inteiro)
-            </h3>
-            <button onclick="fecharModalPreview()" class="text-white hover:text-gray-300 flex items-center gap-1 font-bold bg-white/10 px-4 py-2 rounded-lg transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                Fechar
-            </button>
-        </div>
-        <div id="modal-content" class="w-full max-w-lg bg-white rounded overflow-y-auto max-h-[85vh]"></div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">A Caaqui IA está a analisar os insumos...</h2>
+        <p id="loading-text" class="text-gray-600 font-medium">Lendo brandbook e paleta de cores...</p>
     </div>
 
     <script src="script.js"></script>
