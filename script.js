@@ -36,7 +36,7 @@ function goBack() {
 }
 
 // ==========================================
-// HELPERS DO STEP 1
+// HELPERS DO STEP 1 (Insumos e Links)
 // ==========================================
 function gerarBriefingIA() {
     const textarea = document.getElementById('input-briefing');
@@ -47,6 +47,63 @@ function gerarBriefingIA() {
             textarea.value = `[Objetivo da Campanha]: Promover a ação especial focada em "${topics}".\n[Público-Alvo]: Base ativa dos últimos 6 meses.\n[Tom de Voz]: Urgente, mas sofisticado (conforme brandbook em anexo).\n[Oferta Principal]: Desconto exclusivo para CRM.`;
         }, 1500);
     }
+}
+
+let linksInsumos = [];
+
+function adicionarLinkInsumo() {
+    const inputUrl = document.getElementById('input-insumo-link');
+    const url = inputUrl.value.trim();
+    
+    // Expressão regular básica para validar a URL
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    
+    if (url && urlPattern.test(url) && !linksInsumos.includes(url)) {
+        // Se a URL não tiver http/https, adiciona por padrão
+        const urlFinal = url.startsWith('http') ? url : `https://${url}`;
+        
+        linksInsumos.push(urlFinal);
+        atualizarListaLinks();
+        inputUrl.value = ''; // limpa o input após adicionar
+    } else if (!urlPattern.test(url) && url !== "") {
+        alert("Por favor, insira um link válido.");
+    }
+}
+
+// Permite adicionar o link pressionando a tecla "Enter" no input
+document.getElementById('input-insumo-link')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Evita recarregar a página
+        adicionarLinkInsumo();
+    }
+});
+
+function removerLinkInsumo(index) {
+    linksInsumos.splice(index, 1);
+    atualizarListaLinks();
+}
+
+function atualizarListaLinks() {
+    const container = document.getElementById('lista-links-insumos');
+    container.innerHTML = '';
+    
+    linksInsumos.forEach((link, index) => {
+        let domain = link;
+        try {
+            // Tenta extrair apenas o domínio para ficar mais bonito visualmente
+            domain = new URL(link).hostname.replace('www.', '');
+        } catch(e) {}
+
+        container.innerHTML += `
+            <div class="flex items-center gap-2 bg-white border border-gray-200 shadow-sm px-3 py-1.5 rounded-full text-xs font-medium text-gray-700 animate-fade-in">
+                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                <a href="${link}" target="_blank" class="truncate max-w-[150px] hover:text-blue-600 hover:underline" title="${link}">${domain}</a>
+                <button type="button" onclick="removerLinkInsumo(${index})" class="text-gray-400 hover:text-red-500 ml-1 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        `;
+    });
 }
 
 // ==========================================
