@@ -49,7 +49,7 @@ function goBack() { if (currentStep > 1) goToStep(currentStep - 1); }
 async function invocarGeminiIA(briefing) {
     const texto = briefing.toLowerCase();
     
-    // Match Inteligente de Assets: Tenta identificar logo vs banner pela ordem de upload
+    // Insumos lidos (Usa fallback de mercado se o usuário não fizer upload)
     const urlLogo = assetsCarregados.imagens.length > 0 ? assetsCarregados.imagens[0] : "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Health_icon.svg/1024px-Health_icon.svg.png";
     const urlHero = assetsCarregados.imagens.length > 1 ? assetsCarregados.imagens[1] : (assetsCarregados.imagens[0] || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80");
 
@@ -62,7 +62,6 @@ async function invocarGeminiIA(briefing) {
                 corpo: `Para garantir a qualidade técnica e evitar reagendamentos da sua consulta, é essencial seguir rigorosamente as orientações abaixo:\n\n✔️ Jejum mínimo de 4 horas antes do exame.\n✔️ A ingestão moderada de água é permitida.\n✔️ Suas medicações habituais podem ser tomadas com pouca água.\n\n⚠️ Documentos Obrigatórios:\nNão esqueça de levar um documento oficial com foto e CPF.\n\nChegue com antecedência ao Centro Médico.`,
                 cta: "VER DETALHES E ENDEREÇO",
                 tema: { 
-                    // Extraído do PDF "Expressões de Marca.pdf" (Pág 6 - Azul Proposta)
                     titleColor: "#3A10E0", 
                     btnBg: "#3A10E0", 
                     btnColor: "#ffffff" 
@@ -208,7 +207,6 @@ function alternarCanal(canal, btnElement) {
     else if (canal === 'WhatsApp') {
         document.getElementById('preview-whatsapp').classList.remove('hidden');
         document.getElementById('wpp-logo').src = dados.logoUrl;
-        // Ajusta o nome do header do WhatsApp dinamicamente
         document.querySelector('#preview-whatsapp span.font-semibold').innerText = dados.msg.includes('dr.consulta') ? 'dr.consulta' : 'Conta Comercial';
         
         const mediaContainer = document.getElementById('wpp-media-container');
@@ -364,7 +362,7 @@ function atualizarListaLinks() {
 }
 
 // ==========================================
-// EXPORTAÇÃO (STEP 3)
+// EXPORTAÇÃO (STEP 3) - ATUALIZADO COM PREVIEWS E ASSETS
 // ==========================================
 function gerarTelaExportacao() {
     const container = document.getElementById('export-container');
@@ -377,6 +375,7 @@ function gerarTelaExportacao() {
         const dados = conteudoGeradoIA[chaveIA] || conteudoGeradoIA['Email'];
 
         if(canal === 'Email') {
+            // HTML final atualizado a partir dos campos do editor no step 2
             const htmlCode = `
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; font-family: Arial, sans-serif;">
   <tr>
@@ -408,24 +407,49 @@ function gerarTelaExportacao() {
 </table>`.trim();
 
             content = `
-                <div class="w-full flex gap-4 bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <div class="flex-1">
-                        <label class="font-bold mb-2 flex justify-between items-center text-sm text-gray-700">
-                            <span>📧 Código HTML (${canal})</span>
-                        </label>
-                        <textarea id="export-html-code" class="w-full h-48 border border-gray-300 rounded-lg p-3 bg-gray-900 text-green-400 font-mono text-xs focus:outline-none" readonly>${htmlCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
-                    </div>
-                    <div class="w-1/4 flex flex-col justify-end gap-2">
-                        <button onclick="copiarTexto('export-html-code')" class="bg-white border border-gray-300 text-gray-700 py-3 rounded text-sm font-bold hover:bg-gray-100 transition shadow-sm flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                            Copiar HTML
-                        </button>
+                <div class="w-full bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">📧 E-mail Exportado</h3>
+                    <div class="flex gap-6">
+                        
+                        <div class="w-1/3 flex flex-col gap-6">
+                            <div>
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Preview Visual</span>
+                                <div class="border border-gray-200 rounded-lg overflow-hidden bg-gray-50 relative h-[250px] shadow-inner">
+                                    <iframe srcdoc="${htmlCode.replace(/"/g, '&quot;')}" class="w-full h-full transform scale-[0.5] origin-top-left" style="width: 200%; height: 200%; border: none;"></iframe>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Imagens Fatiadas (Assets)</span>
+                                <div class="flex gap-2 flex-wrap">
+                                    ${dados.logoUrl ? `
+                                    <div class="w-16 h-16 border border-gray-200 rounded bg-white p-1 flex flex-col items-center justify-center relative group shadow-sm">
+                                        <img src="${dados.logoUrl}" class="max-w-full max-h-full object-contain">
+                                        <a href="${dados.logoUrl}" download="logo_email.png" class="absolute inset-0 bg-black/70 hidden group-hover:flex items-center justify-center rounded text-white text-xs font-bold backdrop-blur-sm transition cursor-pointer" title="Baixar Asset">⬇️</a>
+                                    </div>` : ''}
+                                    ${dados.heroUrl ? `
+                                    <div class="w-16 h-16 border border-gray-200 rounded bg-white p-1 flex flex-col items-center justify-center relative group shadow-sm">
+                                        <img src="${dados.heroUrl}" class="max-w-full max-h-full object-cover rounded-sm">
+                                        <a href="${dados.heroUrl}" download="banner_hero.png" class="absolute inset-0 bg-black/70 hidden group-hover:flex items-center justify-center rounded text-white text-xs font-bold backdrop-blur-sm transition cursor-pointer" title="Baixar Asset">⬇️</a>
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-2/3 flex flex-col">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Código HTML Pronto</span>
+                            <textarea id="export-html-code" class="w-full flex-1 border border-gray-300 rounded-lg p-4 bg-gray-900 text-green-400 font-mono text-xs focus:outline-none mb-3 shadow-inner" readonly>${htmlCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                            <button onclick="copiarTexto('export-html-code')" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition shadow-sm self-end px-8">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                Copiar HTML Completo
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
         } else {
             let elId = "";
             let msgExport = "";
+            let icone = canal === 'WhatsApp' ? '💬' : (canal === 'SMS' ? '📱' : '🔔');
             
             if (canal === 'WhatsApp') { elId = 'ia-whatsapp-msg'; }
             else if (canal === 'SMS') { elId = 'ia-sms-msg'; }
@@ -442,18 +466,43 @@ function gerarTelaExportacao() {
             }
 
             content = `
-                <div class="w-full flex gap-4 bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <div class="flex-1">
-                        <label class="font-bold mb-2 flex justify-between items-center text-sm text-gray-700">
-                            <span>📱 Texto Formatado (${canal})</span>
-                        </label>
-                        <textarea id="export-txt-${chaveIA}" class="w-full h-24 border border-gray-300 rounded-lg p-3 bg-white text-gray-800 text-sm focus:outline-none" readonly>${msgExport}</textarea>
-                    </div>
-                    <div class="w-1/4 flex flex-col justify-end gap-2">
-                        <button onclick="copiarTexto('export-txt-${chaveIA}')" class="bg-white border border-gray-300 text-gray-700 py-3 rounded text-sm font-bold hover:bg-gray-100 flex items-center justify-center gap-2 transition shadow-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                            Copiar Texto
-                        </button>
+                <div class="w-full bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">${icone} ${canal} Exportado</h3>
+                    <div class="flex gap-6">
+                        
+                        <div class="w-1/3 flex flex-col gap-6">
+                            <div>
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Mini Preview</span>
+                                <div class="border border-gray-200 bg-gray-100 rounded-lg p-4 h-[180px] overflow-y-auto text-sm whitespace-pre-wrap flex flex-col shadow-inner">
+                                    ${dados.enviarImagem && dados.mediaUrl ? `<img src="${dados.mediaUrl}" class="w-full h-20 object-cover rounded-md mb-2 shadow-sm">` : ''}
+                                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 text-gray-800 leading-snug">${msgExport}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Imagens Fatiadas (Assets)</span>
+                                <div class="flex gap-2 flex-wrap">
+                                    ${dados.logoUrl ? `
+                                    <div class="w-16 h-16 border border-gray-200 rounded bg-white p-1 flex flex-col items-center justify-center relative group shadow-sm" title="Logo">
+                                        <img src="${dados.logoUrl}" class="max-w-full max-h-full object-contain">
+                                        <a href="${dados.logoUrl}" download="logo_${chaveIA}.png" class="absolute inset-0 bg-black/70 hidden group-hover:flex items-center justify-center rounded text-white text-xs font-bold backdrop-blur-sm transition cursor-pointer">⬇️</a>
+                                    </div>` : ''}
+                                    ${dados.enviarImagem && dados.mediaUrl ? `
+                                    <div class="w-16 h-16 border border-gray-200 rounded bg-white p-1 flex flex-col items-center justify-center relative group shadow-sm" title="Imagem Anexa">
+                                        <img src="${dados.mediaUrl}" class="max-w-full max-h-full object-cover rounded-sm">
+                                        <a href="${dados.mediaUrl}" download="media_${chaveIA}.png" class="absolute inset-0 bg-black/70 hidden group-hover:flex items-center justify-center rounded text-white text-xs font-bold backdrop-blur-sm transition cursor-pointer">⬇️</a>
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-2/3 flex flex-col">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Texto Final Formatado</span>
+                            <textarea id="export-txt-${chaveIA}" class="w-full flex-1 border border-gray-300 rounded-lg p-4 bg-white text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 shadow-inner" readonly>${msgExport}</textarea>
+                            <button onclick="copiarTexto('export-txt-${chaveIA}')" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition shadow-sm self-end px-8">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                Copiar Texto
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
