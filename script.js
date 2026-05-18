@@ -1,8 +1,10 @@
 // ==========================================
-// VARIÁVEIS GLOBAIS
+// VARIÁVEIS GLOBAIS E ESTADO
 // ==========================================
 let currentStep = 1;
-let dadosCampanha = {};
+let canaisSelecionados = [];
+let briefingAtual = "";
+let canalAtivo = "";
 
 // ==========================================
 // NAVEGAÇÃO E FLUXO PRINCIPAL
@@ -24,6 +26,7 @@ function goToStep(step) {
     } else {
         footer.classList.remove('hidden-step');
         document.getElementById('btn-next').classList.toggle('hidden-step', currentStep === 3);
+        if(currentStep === 3) gerarTelaExportacao();
     }
     updateBadges();
 }
@@ -33,95 +36,153 @@ function goBack() {
 }
 
 // ==========================================
-// INTELIGÊNCIA ARTIFICIAL (SIMULAÇÃO INTELIGENTE)
+// HELPERS DO STEP 1
+// ==========================================
+function gerarBriefingIA() {
+    const textarea = document.getElementById('input-briefing');
+    const topics = prompt("Quais os tópicos principais? (Ex: Dia das Mães, Promoção 20%, Foco em sapatos)");
+    if(topics) {
+        textarea.value = "A gerar briefing estruturado a partir de: " + topics + "...";
+        setTimeout(() => {
+            textarea.value = `[Objetivo da Campanha]: Promover a ação especial focada em "${topics}".\n[Público-Alvo]: Base ativa dos últimos 6 meses.\n[Tom de Voz]: Urgente, mas sofisticado (conforme brandbook em anexo).\n[Oferta Principal]: Desconto exclusivo para CRM.`;
+        }, 1500);
+    }
+}
+
+// ==========================================
+// PROCESSAMENTO DE IA E PREPARAÇÃO
 // ==========================================
 function processarComIA() {
-    try {
-        const elCliente = document.getElementById('input-cliente');
-        const elDestino = document.getElementById('input-destino');
-        const elUrl = document.getElementById('input-url');
-        const elPrompt = document.getElementById('input-prompt');
-        
-        dadosCampanha.cliente = elCliente && elCliente.value ? elCliente.value : 'Sua Marca';
-        dadosCampanha.destino = elDestino && elDestino.value ? elDestino.value : 'Insider One';
-        dadosCampanha.url = elUrl && elUrl.value ? elUrl.value.toLowerCase() : '';
-        dadosCampanha.prompt = elPrompt && elPrompt.value ? elPrompt.value.toLowerCase() : '';
-        
-        document.getElementById('loading-overlay').classList.remove('hidden-step');
-        
-        setTimeout(() => { document.getElementById('loading-text').innerText = "A analisar o site e o tom de voz da marca..."; }, 500);
-        setTimeout(() => { document.getElementById('loading-text').innerText = "A ler o briefing e a gerar copy de alta conversão..."; }, 1500);
+    // 1. Coletar Canais
+    canaisSelecionados = Array.from(document.querySelectorAll('input[name="canais"]:checked')).map(cb => cb.value);
+    briefingAtual = document.getElementById('input-briefing').value;
 
-        setTimeout(() => {
-            aplicarResultadosIA();
-            document.getElementById('loading-overlay').classList.add('hidden-step');
-            goToStep(2);
-        }, 3000);
-    } catch (error) {
-        console.error("Erro no processamento:", error);
-        alert("Ops! Ocorreu um problema. Verifique a consola.");
+    if(canaisSelecionados.length === 0) {
+        alert("Por favor, selecione pelo menos um canal de comunicação.");
+        return;
     }
-}
 
-function aplicarResultadosIA() {
-    document.getElementById('tag-destino').innerText = `Integração: ${dadosCampanha.destino}`;
-    document.getElementById('btn-enviar-crm').innerText = `Enviar direto para ${dadosCampanha.destino} 🚀`;
-
-    let iaAssunto = "";
-    let iaCorpo = "";
-    let iaCta = "SABER MAIS";
+    // 2. Iniciar Loader Fake
+    document.getElementById('loading-overlay').classList.remove('hidden-step');
     
-    const pedidoUsuario = dadosCampanha.prompt;
-    const nomeCliente = dadosCampanha.cliente !== 'Sua Marca' ? dadosCampanha.cliente : 'nossa loja';
+    setTimeout(() => { document.getElementById('loading-text').innerText = "Extraindo KV, recortes de produtos e paleta dos arquivos base..."; }, 800);
+    setTimeout(() => { document.getElementById('loading-text').innerText = `Adaptando copies para: ${canaisSelecionados.join(', ')}...`; }, 1800);
+    setTimeout(() => { document.getElementById('loading-text').innerText = "Montando HTML e gerando artes finais..."; }, 2800);
 
-    if (dadosCampanha.url.includes('aramis') || dadosCampanha.cliente.toLowerCase().includes('aramis')) {
-        document.getElementById('preview-logo').innerText = "ARAMIS";
-        document.getElementById('brand-indicator').innerText = "Brandbook: Minimalista / Masculino";
-    } else {
-        document.getElementById('preview-logo').innerText = nomeCliente.toUpperCase();
-        document.getElementById('brand-indicator').innerText = "Brandbook: Padrão";
-    }
-
-    if (pedidoUsuario !== '') {
-        if (pedidoUsuario.includes('boas vindas') || pedidoUsuario.includes('novo') || pedidoUsuario.includes('welcome')) {
-            iaAssunto = `Bem-vindo(a) ao clube ${nomeCliente}! 🎉`;
-            iaCorpo = "O seu estilo acaba de subir de nível. O homem em movimento está sempre um passo à frente. Aproveite 15% OFF na sua primeira compra connosco.";
-            iaCta = "CONHECER A COLEÇÃO";
-        } 
-        else if (pedidoUsuario.includes('promo') || pedidoUsuario.includes('desconto') || pedidoUsuario.includes('sale') || pedidoUsuario.includes('liquidação')) {
-            iaAssunto = `Acesso VIP libertado: Condições exclusivas na ${nomeCliente}. 🔥`;
-            iaCorpo = "As peças exclusivas que tinha debaixo de olho estão agora com condições especiais. Renove o seu guarda-roupa com descontos imperdíveis e não perca tempo.";
-            iaCta = "VER PRODUTOS COM DESCONTO";
-        } 
-        else if (pedidoUsuario.includes('carrinho') || pedidoUsuario.includes('abandonado') || pedidoUsuario.includes('esqueceu')) {
-            iaAssunto = "O seu estilo não espera. Finalize a sua compra. 🛒";
-            iaCorpo = `Notámos que selecionou peças exclusivas na ${nomeCliente}, mas não finalizou a encomenda. O homem em movimento não perde tempo. Garanta as suas escolhas hoje.`;
-            iaCta = "VOLTAR PARA O CARRINHO";
-        }
-        else {
-            iaAssunto = `Novidade especial da ${nomeCliente} para si! ✨`;
-            const promptAjustado = pedidoUsuario.charAt(0).toUpperCase() + pedidoUsuario.slice(1);
-            iaCorpo = `Criámos esta comunicação a pensar exatamente no que nos pediu: "${promptAjustado}". Aproveite para descobrir as nossas novas campanhas e produtos em destaque.`;
-            iaCta = "VER MAIS DETALHES";
-        }
-    } else {
-        iaAssunto = `Descubra as novidades da ${nomeCliente}! 🚀`;
-        iaCorpo = `Olá! Temos atualizações incríveis no nosso site. Visite a ${nomeCliente} e descubra o que preparámos para si esta semana. Não deixe escapar as novidades.`;
-        iaCta = "VISITAR O SITE";
-    }
-
-    document.getElementById('ia-assunto').value = iaAssunto;
-    document.getElementById('ia-corpo').value = iaCorpo;
-    document.getElementById('ia-cta').value = iaCta;
-
-    document.getElementById('preview-title').innerText = iaAssunto.replace(/[\u{1F600}-\u{1F6FF}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
-    document.getElementById('preview-text').innerText = iaCorpo;
-    document.getElementById('preview-btn').innerText = iaCta;
+    setTimeout(() => {
+        configurarEstudioMulticanal();
+        document.getElementById('loading-overlay').classList.add('hidden-step');
+        goToStep(2);
+    }, 4000);
 }
 
 // ==========================================
-// CHAT - REFINAMENTO DE IA
+// ESTÚDIO MULTICANAL (STEP 2)
 // ==========================================
+function configurarEstudioMulticanal() {
+    const tabsContainer = document.getElementById('channel-tabs');
+    tabsContainer.innerHTML = '';
+
+    // Gerar Abas
+    canaisSelecionados.forEach((canal, index) => {
+        const btn = document.createElement('button');
+        btn.className = `px-4 py-2 font-bold text-sm border-b-2 transition ${index === 0 ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`;
+        btn.innerText = canal;
+        btn.onclick = () => alternarCanal(canal, btn);
+        tabsContainer.appendChild(btn);
+    });
+
+    // Selecionar primeiro canal
+    if(canaisSelecionados.length > 0) {
+        alternarCanal(canaisSelecionados[0], tabsContainer.firstChild);
+    }
+}
+
+function alternarCanal(canal, btnElement) {
+    canalAtivo = canal;
+    
+    // UI das Abas
+    const tabsContainer = document.getElementById('channel-tabs');
+    Array.from(tabsContainer.children).forEach(btn => {
+        btn.classList.remove('border-blue-600', 'text-blue-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+    btnElement.classList.remove('border-transparent', 'text-gray-500');
+    btnElement.classList.add('border-blue-600', 'text-blue-600');
+
+    // UI da Coluna de Copy e Preview
+    const copyContainer = document.getElementById('copy-fields-container');
+    
+    // Resetar Previews
+    document.querySelectorAll('.preview-channel').forEach(el => el.classList.add('hidden'));
+
+    if (canal === 'Email') {
+        document.getElementById('preview-email').classList.remove('hidden');
+        copyContainer.innerHTML = `
+            <div class="mb-4">
+                <label class="block text-xs font-medium text-gray-500 mb-1">Assunto do E-mail</label>
+                <input type="text" id="ia-assunto" class="w-full border-b focus:outline-none focus:border-blue-500 py-1 font-medium text-sm" value="Descubra a nova coleção exclusiva ✨" oninput="sincronizarCopy()">
+            </div>
+            <div class="mb-4 flex-1 flex flex-col">
+                <label class="block text-xs font-medium text-gray-500 mb-1">Corpo do E-mail (HTML Text)</label>
+                <textarea id="ia-corpo" class="w-full flex-1 border rounded p-2 bg-gray-50 text-sm focus:outline-none" oninput="sincronizarCopy()">Olá! Com base nos insumos enviados, criamos esta peça. Aproveite as vantagens exclusivas.</textarea>
+            </div>
+            <div class="mb-2">
+                <label class="block text-xs font-medium text-gray-500 mb-1">Botão (CTA)</label>
+                <input type="text" id="ia-cta" class="w-full border-b focus:outline-none focus:border-blue-500 py-1 text-sm font-bold" value="APROVEITAR AGORA" oninput="sincronizarCopy()">
+            </div>
+        `;
+        sincronizarCopy();
+    } else {
+        // WhatsApp, SMS, Push usam o mockup mobile
+        document.getElementById('preview-mobile').classList.remove('hidden');
+        let corHeader = canal === 'WhatsApp' ? 'bg-green-600' : (canal === 'SMS' ? 'bg-blue-500' : 'bg-purple-600');
+        document.querySelector('#preview-mobile > div').className = `${corHeader} text-white p-4 pt-8 text-center font-bold text-sm shadow flex items-center gap-2`;
+        
+        let msgMock = canal === 'WhatsApp' ? 
+            "Olá! Notamos o seu interesse na nova coleção. 👗\n\nQue tal garantir suas peças hoje com frete grátis?\nAcesse: link.com/vip" : 
+            `${canal}: Promoção exclusiva hoje! Acesse link.com/vip e garanta seu desconto.`;
+
+        copyContainer.innerHTML = `
+            <div class="mb-4 flex-1 flex flex-col">
+                <label class="block text-xs font-medium text-gray-500 mb-1">Mensagem de ${canal}</label>
+                <textarea id="ia-mobile-msg" class="w-full flex-1 border rounded p-2 bg-gray-50 text-sm focus:outline-none" oninput="sincronizarMobile()">${msgMock}</textarea>
+            </div>
+        `;
+        sincronizarMobile();
+    }
+}
+
+function sincronizarCopy() {
+    if(document.getElementById('preview-title') && document.getElementById('ia-assunto')) {
+        document.getElementById('preview-title').innerText = document.getElementById('ia-assunto').value;
+        document.getElementById('preview-text').innerText = document.getElementById('ia-corpo').value;
+        document.getElementById('preview-btn').innerText = document.getElementById('ia-cta').value;
+    }
+}
+
+function sincronizarMobile() {
+    if(document.getElementById('mobile-preview-text') && document.getElementById('ia-mobile-msg')) {
+        document.getElementById('mobile-preview-text').innerText = document.getElementById('ia-mobile-msg').value;
+    }
+}
+
+// Upload de imagem no mockup
+let currentImageIdToSwap = null;
+function abrirUploadImagem(imageId) {
+    currentImageIdToSwap = imageId;
+    document.getElementById('hidden-file-upload').click();
+}
+document.getElementById('hidden-file-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file && currentImageIdToSwap) {
+        const imageUrl = URL.createObjectURL(file);
+        document.getElementById(currentImageIdToSwap).src = imageUrl;
+    }
+    this.value = ''; 
+});
+
+// Chat de refinamento
 function verificarEnter(event) {
     if (event.key === "Enter") enviarMensagemChat();
 }
@@ -132,194 +193,78 @@ function enviarMensagemChat() {
     if (!mensagem) return;
 
     const chatHistory = document.getElementById('chat-history');
-
-    chatHistory.innerHTML += `
-        <div class="bg-gray-200 text-gray-800 p-2 rounded-lg rounded-tr-none self-end max-w-[90%] shadow-sm">
-            ${mensagem}
-        </div>
-    `;
+    chatHistory.innerHTML += `<div class="bg-gray-200 text-gray-800 p-2 rounded-lg rounded-tr-none self-end max-w-[90%] shadow-sm">${mensagem}</div>`;
     inputEl.value = ''; 
     chatHistory.scrollTop = chatHistory.scrollHeight; 
 
-    const idPensando = 'msg-' + Date.now();
-    chatHistory.innerHTML += `
-        <div id="${idPensando}" class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] opacity-70 animate-pulse">
-            A processar...
-        </div>
-    `;
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-
     setTimeout(() => {
-        document.getElementById(idPensando).remove();
-        let respostaIA = "Feito! Ajustei conforme pediu.";
-        const msgLower = mensagem.toLowerCase();
-
-        if (msgLower.includes('curto') || msgLower.includes('resuma')) {
-            document.getElementById('ia-corpo').value = "O homem em movimento não perde tempo. Garanta as suas escolhas com 10% OFF usando o código ARAMIS10.";
-            document.getElementById('preview-text').innerText = document.getElementById('ia-corpo').value;
-            respostaIA = "Deixei o texto mais direto e foquei-me no desconto!";
-        } else if (msgLower.includes('assunto') || msgLower.includes('título')) {
-            document.getElementById('ia-assunto').value = "As suas escolhas exclusivas aguardam 👔";
-            document.getElementById('preview-title').innerText = "As suas escolhas exclusivas aguardam";
-            respostaIA = "Atualizei o assunto para algo mais exclusivo.";
-        } else if (msgLower.includes('botão') || msgLower.includes('cta')) {
-            document.getElementById('ia-cta').value = "GARANTIR OS MEUS 10% OFF";
-            document.getElementById('preview-btn').innerText = document.getElementById('ia-cta').value;
-            respostaIA = "Mudei o botão para gerar mais urgência.";
-        }
-
-        chatHistory.innerHTML += `
-            <div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] shadow-sm">
-                ${respostaIA}
-            </div>
-        `;
+        chatHistory.innerHTML += `<div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] shadow-sm">Feito! Ajustei o texto de ${canalAtivo} para ser mais persuasivo.</div>`;
         chatHistory.scrollTop = chatHistory.scrollHeight;
-    }, 1200);
-}
-
-// ==========================================
-// MODAL DE PREVIEW FULL SCREEN
-// ==========================================
-function abrirModalPreview() {
-    const modal = document.getElementById('modal-preview');
-    const modalContent = document.getElementById('modal-content');
-    
-    const mockupEditado = document.querySelector('#email-builder-container').innerHTML;
-    modalContent.innerHTML = mockupEditado;
-    
-    modalContent.querySelectorAll('[contenteditable]').forEach(el => {
-        el.removeAttribute('contenteditable');
-        el.classList.remove('hover:ring-2', 'hover:ring-dashed', 'cursor-text');
-    });
-    
-    modal.classList.remove('hidden-step');
-}
-
-function fecharModalPreview() {
-    document.getElementById('modal-preview').classList.add('hidden-step');
-}
-
-// ==========================================
-// SINCRONIZAÇÃO: FORMULÁRIO <-> CMS
-// ==========================================
-function sincronizarParaEsquerda(campo) {
-    if (campo === 'logo') return; 
-    if (campo === 'title') {
-        document.getElementById('ia-assunto').value = document.getElementById('preview-title').innerText;
-    } else if (campo === 'text') {
-        document.getElementById('ia-corpo').value = document.getElementById('preview-text').innerText;
-    } else if (campo === 'btn') {
-        document.getElementById('ia-cta').value = document.getElementById('preview-btn').innerText;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const inputs = ['ia-assunto', 'ia-corpo', 'ia-cta'];
-    const previews = ['preview-title', 'preview-text', 'preview-btn'];
-    
-    inputs.forEach((id, index) => {
-        const inputEl = document.getElementById(id);
-        if (inputEl) {
-            inputEl.addEventListener('input', function() {
-                const prevEl = document.getElementById(previews[index]);
-                if (prevEl) prevEl.innerText = this.value;
-            });
-        }
-    });
-});
-
-// ==========================================
-// CMS EDITOR: TEXTOS, UPLOADS E DRAG & DROP
-// ==========================================
-
-let currentTarget = null;
-const toolbar = document.getElementById('cms-toolbar');
-
-function showToolbar(element) {
-    currentTarget = element;
-    const rect = element.getBoundingClientRect();
-    const containerRect = document.getElementById('preview-scroll-container').getBoundingClientRect();
-    
-    toolbar.style.left = `${rect.left - containerRect.left + (rect.width / 2)}px`;
-    toolbar.style.top = `${rect.top - containerRect.top - 10}px`;
-    toolbar.classList.remove('hidden');
-}
-
-function hideToolbar() {
-    setTimeout(() => {
-        if (!toolbar.matches(':hover')) {
-            toolbar.classList.add('hidden');
-        }
-    }, 250);
-}
-
-function formatText(command, value = null) {
-    if (!currentTarget) return;
-    
-    if (currentTarget.tagName === 'BUTTON' && command === 'foreColor') {
-        currentTarget.style.backgroundColor = value;
-        return;
-    }
-
-    document.execCommand(command, false, value);
-    currentTarget.focus();
-}
-
-let currentImageIdToSwap = null;
-
-function abrirUploadImagem(imageId) {
-    currentImageIdToSwap = imageId;
-    document.getElementById('hidden-file-upload').click();
-}
-
-document.getElementById('hidden-file-upload').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file && currentImageIdToSwap) {
-        const imageUrl = URL.createObjectURL(file);
-        document.getElementById(currentImageIdToSwap).src = imageUrl;
-    }
-    this.value = ''; 
-});
-
-const containerBuilder = document.getElementById('email-builder-container');
-let draggedItem = null;
-
-if (containerBuilder) {
-    document.querySelectorAll('.builder-block').forEach(block => {
-        block.addEventListener('dragstart', function(e) {
-            draggedItem = this;
-            setTimeout(() => this.classList.add('opacity-50'), 0);
-        });
-
-        block.addEventListener('dragend', function() {
-            setTimeout(() => {
-                this.classList.remove('opacity-50');
-                draggedItem = null;
-            }, 0);
-        });
-
-        block.addEventListener('dragover', function(e) {
-            e.preventDefault(); 
-            const afterElement = getDragAfterElement(containerBuilder, e.clientY);
-            if (afterElement == null) {
-                containerBuilder.appendChild(draggedItem);
-            } else {
-                containerBuilder.insertBefore(draggedItem, afterElement);
-            }
-        });
-    });
-}
-
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.builder-block:not(.opacity-50)')];
-    
-    return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child };
+        
+        if(canalAtivo === 'Email') {
+            document.getElementById('ia-cta').value = "COMPRAR AGORA!";
+            sincronizarCopy();
         } else {
-            return closest;
+            document.getElementById('ia-mobile-msg').value = document.getElementById('ia-mobile-msg').value.replace('!', '!!! 🚀🔥');
+            sincronizarMobile();
         }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }, 1000);
+}
+
+// ==========================================
+// EXPORTAÇÃO (STEP 3)
+// ==========================================
+function gerarTelaExportacao() {
+    const container = document.getElementById('export-container');
+    container.innerHTML = ''; // Limpar
+
+    canaisSelecionados.forEach(canal => {
+        let content = '';
+
+        if(canal === 'Email') {
+            content = `
+                <div class="w-full flex gap-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="flex-1">
+                        <label class="font-bold mb-2 flex justify-between items-center text-sm">
+                            <span>📧 HTML Original Caaqui (${canal})</span>
+                        </label>
+                        <textarea class="w-full h-32 border rounded-lg p-2 bg-gray-900 text-green-400 font-mono text-xs" readonly>
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb;">
+  <tr>
+    <td align="center" style="padding: 40px 0;">
+      </td>
+  </tr>
+</table></textarea>
+                    </div>
+                    <div class="w-1/3 flex flex-col gap-2">
+                        <span class="font-bold text-sm">Artes Exportadas:</span>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="w-16 h-16 bg-gray-200 rounded border border-gray-300 flex items-center justify-center text-[10px] text-center p-1">KV_hero.jpg</div>
+                            <div class="w-16 h-16 bg-gray-200 rounded border border-gray-300 flex items-center justify-center text-[10px] text-center p-1">prod_1.jpg</div>
+                        </div>
+                        <button class="mt-auto bg-white border border-gray-300 text-gray-700 py-2 rounded text-sm font-bold hover:bg-gray-100">Copiar HTML</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            content = `
+                <div class="w-full flex gap-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="flex-1">
+                        <label class="font-bold mb-2 flex justify-between items-center text-sm">
+                            <span>📱 Texto Formatado (${canal})</span>
+                        </label>
+                        <textarea class="w-full h-24 border rounded-lg p-3 bg-white text-gray-800 text-sm" readonly>A mensagem validada no estúdio vai aparecer aqui, pronta para copiar e colar na plataforma de envio.</textarea>
+                    </div>
+                    <div class="w-1/4 flex flex-col justify-end">
+                        <button class="bg-white border border-gray-300 text-gray-700 py-2 rounded text-sm font-bold hover:bg-gray-100 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            Copiar Texto
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML += content;
+    });
 }
