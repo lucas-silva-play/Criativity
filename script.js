@@ -34,7 +34,6 @@ function goToStep(step) {
         footer.classList.remove('hidden-step');
         document.getElementById('btn-next').classList.toggle('hidden-step', currentStep === 3);
         
-        // GATILHO CORRIGIDO: Chama a renderização da exportação ao chegar no step 3
         if (currentStep === 3) {
             gerarTelaExportacao();
         }
@@ -50,34 +49,39 @@ function goBack() { if (currentStep > 1) goToStep(currentStep - 1); }
 async function invocarGeminiIA(briefing) {
     const texto = briefing.toLowerCase();
     
-    // Insumos lidos (Usa fallback de mercado se o usuário não fizer upload)
+    // Match Inteligente de Assets: Tenta identificar logo vs banner pela ordem de upload
     const urlLogo = assetsCarregados.imagens.length > 0 ? assetsCarregados.imagens[0] : "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Health_icon.svg/1024px-Health_icon.svg.png";
     const urlHero = assetsCarregados.imagens.length > 1 ? assetsCarregados.imagens[1] : (assetsCarregados.imagens[0] || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80");
 
-    // CASO 1: Cenário Assistencial/Médico/Exames
-    if (texto.includes('exame') || texto.includes('jejum') || texto.includes('médico') || texto.includes('paciente')) {
+    // CASO 1: Cenário Assistencial/Médico/Exames (Match Fiel com "Expressões de Marca.pdf")
+    if (texto.includes('exame') || texto.includes('jejum') || texto.includes('médico') || texto.includes('paciente') || texto.includes('consulta')) {
         return {
             Email: {
                 assunto: "Atenção ao preparo: Seu exame é amanhã",
                 title: "Importante: Orientações para o seu exame",
-                corpo: `Para garantir a qualidade técnica e evitar reagendamentos da sua consulta, é essencial seguir rigorosamente as orientações abaixo:\n\n✔️ Jejum mínimo de 4 horas antes do exame.\n✔️ A ingestão moderada de água é permitida.\n✔️ Suas medicações habituais podem ser tomadas com pouca água.\n\n⚠️ Documentos Obrigatórios:\nNão esqueça de levar um documento oficial com foto e CPF.\n\nChegue com antecedência ao nosso Centro Médico.`,
+                corpo: `Para garantir a qualidade técnica e evitar reagendamentos da sua consulta, é essencial seguir rigorosamente as orientações abaixo:\n\n✔️ Jejum mínimo de 4 horas antes do exame.\n✔️ A ingestão moderada de água é permitida.\n✔️ Suas medicações habituais podem ser tomadas com pouca água.\n\n⚠️ Documentos Obrigatórios:\nNão esqueça de levar um documento oficial com foto e CPF.\n\nChegue com antecedência ao Centro Médico.`,
                 cta: "VER DETALHES E ENDEREÇO",
-                tema: { titleColor: "#d32f2f", btnBg: "#005b96", btnColor: "#ffffff" },
+                tema: { 
+                    // Extraído do PDF "Expressões de Marca.pdf" (Pág 6 - Azul Proposta)
+                    titleColor: "#3A10E0", 
+                    btnBg: "#3A10E0", 
+                    btnColor: "#ffffff" 
+                },
                 logoUrl: urlLogo,
                 heroUrl: urlHero
             },
             WhatsApp: {
-                msg: "Olá! 🏥 Lembrete assistencial: Seu exame é amanhã.\n\n⚠️ *PREPARO OBRIGATÓRIO:*\n• Jejum mínimo de 4 horas.\n• Água moderada é permitida.\n• Remédios de rotina podem ser tomados.\n\n📄 Traga documento com foto e CPF.\nNos vemos amanhã!",
+                msg: "Olá! 🏥 Lembrete assistencial da dr.consulta: Seu exame é amanhã.\n\n⚠️ *PREPARO OBRIGATÓRIO:*\n• Jejum mínimo de 4 horas.\n• Água moderada é permitida.\n• Remédios de rotina podem ser tomados.\n\n📄 Traga documento com foto e CPF.\nNos vemos amanhã!",
                 enviarImagem: true,
                 mediaUrl: urlHero,
                 logoUrl: urlLogo
             },
             SMS: {
-                msg: "Centro Medico: Lembrete do seu exame amanha. Necessario jejum de 4h (agua permitida). Traga doc original c/ foto e CPF.",
+                msg: "dr.consulta: Lembrete do seu exame amanha. Necessario jejum de 4h (agua permitida). Traga doc original c/ foto e CPF.",
                 logoUrl: urlLogo
             },
             WebPush: {
-                titulo: "Seu exame é amanhã! ⏰",
+                titulo: "dr.consulta: Seu exame é amanhã! ⏰",
                 msg: "Confira as orientações obrigatórias de jejum de 4 horas para a realização do seu exame.",
                 logoUrl: urlLogo
             }
@@ -125,6 +129,7 @@ async function processarComIA() {
     if(briefingAtual.trim() === "") { alert("Insira o briefing para a IA analisar."); return; }
 
     document.getElementById('loading-overlay').classList.remove('hidden-step');
+    document.getElementById('loading-text').innerHTML = "Lendo anexos e Brandbook (PDF)...<br>Extraindo paleta de cores e logos fiéis...";
     
     conteudoGeradoIA = await invocarGeminiIA(briefingAtual);
 
@@ -132,7 +137,7 @@ async function processarComIA() {
         configurarEstudioMulticanal();
         document.getElementById('loading-overlay').classList.add('hidden-step');
         goToStep(2);
-    }, 2000);
+    }, 2500);
 }
 
 // ==========================================
@@ -165,7 +170,7 @@ function alternarCanal(canal, btnElement) {
     const copyContainer = document.getElementById('copy-fields-container');
     document.querySelectorAll('.preview-channel').forEach(el => el.classList.add('hidden'));
 
-    const chaveIA = canal.replace(' ', ''); // Trata "Web Push" -> "WebPush"
+    const chaveIA = canal.replace(' ', ''); 
     const dados = conteudoGeradoIA[chaveIA] || conteudoGeradoIA['Email'];
 
     if (canal === 'Email') {
@@ -203,6 +208,8 @@ function alternarCanal(canal, btnElement) {
     else if (canal === 'WhatsApp') {
         document.getElementById('preview-whatsapp').classList.remove('hidden');
         document.getElementById('wpp-logo').src = dados.logoUrl;
+        // Ajusta o nome do header do WhatsApp dinamicamente
+        document.querySelector('#preview-whatsapp span.font-semibold').innerText = dados.msg.includes('dr.consulta') ? 'dr.consulta' : 'Conta Comercial';
         
         const mediaContainer = document.getElementById('wpp-media-container');
         if(dados.enviarImagem) {
@@ -223,6 +230,7 @@ function alternarCanal(canal, btnElement) {
     else if (canal === 'SMS') {
         document.getElementById('preview-sms').classList.remove('hidden');
         document.getElementById('sms-logo').src = dados.logoUrl;
+        document.querySelector('#preview-sms span.font-semibold').innerText = dados.msg.includes('dr.consulta') ? 'dr.consulta' : 'SMS Corporativo';
 
         copyContainer.innerHTML = `
             <div class="flex-1 flex flex-col">
@@ -236,6 +244,7 @@ function alternarCanal(canal, btnElement) {
     else if (canal === 'Web Push' || canal === 'App Push') {
         document.getElementById('preview-push').classList.remove('hidden');
         document.getElementById('push-logo').src = dados.logoUrl;
+        document.querySelector('#preview-push span.font-semibold').innerText = dados.msg.includes('dr.consulta') ? 'App dr.consulta' : 'Aplicativo';
 
         copyContainer.innerHTML = `
             <div>
@@ -273,10 +282,9 @@ function sincronizarCopy() {
 }
 
 // ==========================================
-// UPLOADS E LINKS (STEP 1) - INTOCADOS DA ÚLTIMA VERSÃO
+// UPLOADS E LINKS (STEP 1)
 // ==========================================
 
-// 1. Upload de Imagens
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('upload-insumos');
     if(fileInput) {
@@ -286,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const thumbContainer = document.getElementById('thumbnails-container');
             
             if(files.length > 0) {
-                label.innerText = `${files.length} arquivo(s) preparado(s) para a IA ✅`;
+                label.innerHTML = `${files.length} arquivo(s) preparado(s) para a IA ✅<br><span class="text-xs text-green-700">Logo e assets identificados!</span>`;
                 label.classList.replace('text-blue-900', 'text-green-600');
                 
                 files.forEach(file => {
@@ -304,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Listener do Enter para inclusão de Links
     const linkInput = document.getElementById('input-insumo-link');
     if(linkInput) {
         linkInput.addEventListener('keypress', function(e) {
@@ -316,19 +323,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 3. Funções de Inclusão/Remoção de Links
 function adicionarLinkInsumo() {
     const inputUrl = document.getElementById('input-insumo-link');
     const url = inputUrl.value.trim();
-    
-    // Validação regex simples de URL
     const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
     
     if (url && urlPattern.test(url) && !linksInsumos.includes(url)) {
         const urlFinal = url.startsWith('http') ? url : `https://${url}`;
         linksInsumos.push(urlFinal);
         atualizarListaLinks();
-        inputUrl.value = ''; // Limpa o campo
+        inputUrl.value = ''; 
     } else if (!urlPattern.test(url) && url !== "") {
         alert("Por favor, insira um link válido.");
     }
@@ -347,9 +351,7 @@ function atualizarListaLinks() {
     
     linksInsumos.forEach((link, index) => {
         let domain = link;
-        try { 
-            domain = new URL(link).hostname.replace('www.', ''); 
-        } catch(e) {}
+        try { domain = new URL(link).hostname.replace('www.', ''); } catch(e) {}
         
         container.innerHTML += `
             <div class="flex items-center gap-2 bg-white border border-gray-200 shadow-sm px-3 py-1.5 rounded-full text-xs font-medium text-gray-700">
@@ -362,12 +364,12 @@ function atualizarListaLinks() {
 }
 
 // ==========================================
-// EXPORTAÇÃO (STEP 3) - ADICIONADO E RESTAURADO
+// EXPORTAÇÃO (STEP 3)
 // ==========================================
 function gerarTelaExportacao() {
     const container = document.getElementById('export-container');
     if (!container) return;
-    container.innerHTML = ''; // Limpar antes de popular
+    container.innerHTML = ''; 
 
     canaisSelecionados.forEach(canal => {
         let content = '';
@@ -375,7 +377,6 @@ function gerarTelaExportacao() {
         const dados = conteudoGeradoIA[chaveIA] || conteudoGeradoIA['Email'];
 
         if(canal === 'Email') {
-            // Constrói um HTML simples com base no layout aprovado no Step 2
             const htmlCode = `
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; font-family: Arial, sans-serif;">
   <tr>
@@ -423,7 +424,6 @@ function gerarTelaExportacao() {
                 </div>
             `;
         } else {
-            // Trata as exportações de texto (SMS, WhatsApp, Push)
             let elId = "";
             let msgExport = "";
             
@@ -431,7 +431,6 @@ function gerarTelaExportacao() {
             else if (canal === 'SMS') { elId = 'ia-sms-msg'; }
             else if (canal === 'Web Push' || canal === 'App Push') { elId = 'ia-push-msg'; }
 
-            // Pega o texto atualizado (caso o usuário tenha editado no Step 2)
             if (document.getElementById(elId)) {
                 msgExport = document.getElementById(elId).value;
                 if (canal === 'Web Push' || canal === 'App Push') {
@@ -464,7 +463,6 @@ function gerarTelaExportacao() {
     });
 }
 
-// Função utilitária para copiar texto para a área de transferência
 function copiarTexto(elementId) {
     const el = document.getElementById(elementId);
     if(el) {
