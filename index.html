@@ -33,7 +33,7 @@
                         <input type="checkbox" name="canais" value="Email" class="w-4 h-4 text-blue-600" checked> E-mail
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition">
-                        <input type="checkbox" name="canais" value="WhatsApp" class="w-4 h-4 text-blue-600"> WhatsApp
+                        <input type="checkbox" name="canais" value="WhatsApp" class="w-4 h-4 text-blue-600" checked> WhatsApp
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition">
                         <input type="checkbox" name="canais" value="SMS" class="w-4 h-4 text-blue-600"> SMS
@@ -46,20 +46,24 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-bold text-gray-700 mb-2">2. Briefing</label>
-                <textarea id="input-briefing" rows="6" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Cole todo o briefing aqui... A IA vai interpretar tom de voz, regras de negócio e estrutura visual."></textarea>
+                <textarea id="input-briefing" rows="5" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Cole todo o briefing aqui... A IA vai interpretar tom de voz, regras de negócio e estrutura visual."></textarea>
             </div>
 
             <div class="mb-8">
                 <label class="block text-sm font-bold text-gray-700 mb-2">3. Insumos / Guide <span class="text-red-500">*Primordial para a IA</span></label>
                 <div class="flex flex-col gap-4">
-                    <input type="file" id="upload-insumos" multiple class="hidden" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                    <input type="file" id="upload-insumos" multiple class="hidden" accept=".pdf,.png,.jpg,.jpeg,.svg,.doc,.docx">
                     <div onclick="document.getElementById('upload-insumos').click()" class="border-2 border-dashed border-blue-300 rounded-xl p-8 text-center bg-blue-50 hover:bg-blue-100 transition cursor-pointer relative overflow-hidden group">
                         <div class="absolute inset-0 bg-blue-500/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
                         <svg class="w-10 h-10 mx-auto text-blue-500 mb-2 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         <p id="label-insumos-arquivos" class="text-blue-900 font-bold relative z-10 text-base">Arraste arquivos ou clique aqui para selecionar</p>
+                        <p class="text-xs text-blue-700 mt-1">Upload de KV (Banner), Logo e imagens de apoio.</p>
                     </div>
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-5">
-                        <label class="block text-xs font-bold text-gray-600 mb-2">Ou adicione links de referência</label>
+                    
+                    <div id="thumbnails-container" class="flex flex-wrap gap-3 empty:hidden"></div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mt-2">
+                        <label class="block text-xs font-bold text-gray-600 mb-2">Links de referência (Opcional)</label>
                         <div class="flex gap-2">
                             <input type="url" id="input-insumo-link" placeholder="https://..." class="flex-1 border border-gray-300 rounded-lg pl-3 p-2.5 text-sm focus:outline-none bg-white">
                             <button type="button" onclick="adicionarLinkInsumo()" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-5 rounded-lg text-sm transition">Adicionar</button>
@@ -81,55 +85,103 @@
             <div id="channel-tabs" class="flex gap-2 border-b border-gray-200 pb-2 overflow-x-auto"></div>
 
             <div class="flex gap-6 flex-1">
-                <div class="w-1/3 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[65vh]">
+                <div class="w-1/3 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[75vh]">
                     <h2 class="text-xl font-bold mb-4 flex items-center gap-2">✍️ Textos Gerados <span class="text-xs bg-green-100 text-green-700 py-1 px-2 rounded">IA Gemini</span></h2>
                     
-                    <div id="copy-fields-container" class="flex-1 flex flex-col overflow-y-auto pr-2"></div>
+                    <div id="copy-fields-container" class="flex-1 flex flex-col overflow-y-auto pr-2 gap-4"></div>
 
-                    <div class="mt-4 border-t pt-4 flex flex-col overflow-hidden h-32">
+                    <div class="mt-4 border-t pt-4 flex flex-col overflow-hidden shrink-0">
                         <h3 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">💬 Refinar com Gemini</h3>
                         <div class="flex gap-2">
                             <input type="text" id="chat-input" placeholder="Ex: Deixe mais urgente..." class="flex-1 border border-gray-300 rounded p-2 text-xs focus:outline-none">
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition">
+                            <button onclick="enviarMensagemChat()" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="w-2/3 bg-gray-100 p-6 rounded-xl shadow-inner border border-gray-200 flex flex-col h-[65vh] relative overflow-hidden">
+                <div class="w-2/3 bg-gray-200 p-6 rounded-xl shadow-inner border border-gray-300 flex flex-col h-[75vh] relative overflow-hidden">
                     
                     <h2 class="w-full text-lg font-bold mb-4 flex items-center justify-between text-gray-600 shrink-0">
-                        <span>🎨 Preview Visual</span>
-                        <span id="brand-indicator" class="text-xs bg-blue-100 text-blue-800 border border-blue-200 py-1 px-3 rounded-full font-bold">Gerado por IA</span>
+                        <span>🎨 Preview Visual Realista</span>
+                        <span id="brand-indicator" class="text-xs bg-blue-100 text-blue-800 border border-blue-200 py-1 px-3 rounded-full font-bold">Assets Aplicados</span>
                     </h2>
                     
                     <div class="flex-1 overflow-y-auto w-full flex justify-center pb-8 relative" id="preview-scroll-container">
                         
-                        <div id="preview-email" class="preview-channel w-full max-w-md bg-white shadow-xl rounded h-max flex flex-col relative mt-4">
-                            <div class="builder-block text-center py-6 border-b cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all" style="background-color: var(--header-bg, #ffffff);">
-                                <h1 id="preview-logo" contenteditable="true" class="text-2xl font-serif tracking-widest uppercase font-bold outline-none rounded px-2 mx-auto inline-block" style="color: var(--header-color, #111827);">LOGO</h1>
+                        <div id="preview-email" class="preview-channel w-full max-w-[600px] bg-gray-50 shadow-2xl flex flex-col relative mt-2 border border-gray-200" style="font-family: Arial, sans-serif;">
+                            <div class="bg-white py-6 px-8 text-center border-b border-gray-100 flex justify-center items-center cursor-move hover:ring-2 hover:ring-blue-400 transition-all group">
+                                <img id="preview-logo-img" src="" class="max-h-14 object-contain" alt="Logo Cliente">
                             </div>
-                            
-                            <div id="hero-image-block" class="builder-block relative group cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all">
-                                <img id="hero-image-preview" src="" class="w-full h-64 object-cover pointer-events-none">
+                            <div class="relative group cursor-move hover:ring-2 hover:ring-blue-400 transition-all bg-gray-100">
+                                <img id="preview-hero-img" src="" class="w-full h-[280px] object-cover" alt="Banner Hero">
                             </div>
-                            
-                            <div class="builder-block p-8 text-center cursor-move hover:border-blue-400 hover:border-dashed border-2 border-transparent transition-all">
-                                <h2 id="preview-title" contenteditable="true" class="text-xl font-bold mb-4 outline-none whitespace-pre-wrap" style="color: var(--title-color, #111827);">Título</h2>
-                                <p id="preview-text" contenteditable="true" class="text-gray-700 text-sm mb-6 leading-relaxed outline-none whitespace-pre-wrap text-left">Texto</p>
-                                <button id="preview-btn" contenteditable="true" class="px-8 py-3 text-sm font-bold tracking-wider outline-none inline-block rounded" style="background-color: var(--btn-bg, #000000); color: var(--btn-color, #ffffff);">CTA</button>
+                            <div class="bg-white p-10 cursor-move hover:ring-2 hover:ring-blue-400 transition-all relative">
+                                <h1 id="preview-email-title" contenteditable="true" class="text-[22px] font-bold text-gray-900 mb-5 outline-none leading-tight" style="color: var(--title-color, #111827);">Título do E-mail</h1>
+                                <div id="preview-email-text" contenteditable="true" class="text-gray-700 text-[15px] leading-[1.6] outline-none whitespace-pre-wrap">Corpo do e-mail</div>
+                                <div class="text-center mt-10 mb-2">
+                                    <button id="preview-email-btn" contenteditable="true" class="inline-block px-10 py-4 text-[15px] font-bold uppercase tracking-wider outline-none rounded-md" style="background-color: var(--btn-bg, #005b96); color: var(--btn-color, #ffffff);">CTA</button>
+                                </div>
+                            </div>
+                            <div class="bg-gray-100 py-8 px-10 text-center border-t border-gray-200">
+                                <p class="text-gray-500 text-[11px] leading-relaxed mb-4">Você está recebendo este e-mail porque está cadastrado em nossa base.</p>
                             </div>
                         </div>
 
-                        <div id="preview-mobile" class="preview-channel hidden w-full max-w-sm bg-gray-200 border-8 border-gray-800 rounded-[2.5rem] h-[600px] flex flex-col relative mt-4 shadow-2xl overflow-hidden">
-                            <div id="mobile-header" class="text-white p-4 pt-8 text-center font-bold text-sm shadow flex items-center gap-2">
-                                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center font-bold text-black" id="mobile-avatar">M</div>
-                                <span id="mobile-header-name">Marca</span>
+                        <div id="preview-whatsapp" class="preview-channel hidden w-full max-w-sm bg-[#efeae2] border-8 border-gray-800 rounded-[2.5rem] h-[650px] flex flex-col relative mt-2 shadow-2xl overflow-hidden font-sans">
+                            <div class="bg-[#075e54] text-white p-3 pt-10 shadow-md flex items-center gap-3 z-10">
+                                <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                <img id="wpp-logo" src="" class="w-10 h-10 bg-white rounded-full object-contain p-0.5" alt="Logo">
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-[15px] leading-tight">Conta Comercial</span>
+                                    <span class="text-[11px] text-gray-200">conta comercial oficial</span>
+                                </div>
                             </div>
-                            <div class="flex-1 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-cover p-4 flex flex-col gap-2 overflow-y-auto">
-                                <div class="bg-white p-3 rounded-lg rounded-tl-none text-sm text-gray-800 shadow-sm self-start max-w-[85%] whitespace-pre-wrap" id="mobile-preview-text">
-                                    Mensagem
+                            <div class="flex-1 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-cover p-4 flex flex-col gap-2 overflow-y-auto relative">
+                                <div class="bg-white p-2 rounded-lg rounded-tl-none text-[14px] text-gray-800 shadow-sm self-start max-w-[85%] relative mt-2">
+                                    <div id="wpp-media-container" class="hidden mb-2 rounded-md overflow-hidden">
+                                        <img id="wpp-media-img" src="" class="w-full object-cover max-h-48">
+                                    </div>
+                                    <div id="preview-whatsapp-text" class="whitespace-pre-wrap leading-snug px-1 pb-4">Mensagem do WhatsApp</div>
+                                    <span class="text-[10px] text-gray-400 absolute bottom-1.5 right-2">12:00</span>
+                                </div>
+                            </div>
+                            <div class="bg-[#f0f0f0] p-2 px-4 flex items-center gap-2">
+                                <div class="bg-white rounded-full flex-1 h-10 flex items-center px-4 text-gray-400 text-sm">Mensagem</div>
+                                <div class="w-10 h-10 bg-[#128C7E] rounded-full flex items-center justify-center text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg></div>
+                            </div>
+                        </div>
+
+                        <div id="preview-sms" class="preview-channel hidden w-full max-w-sm bg-gray-100 border-8 border-gray-800 rounded-[2.5rem] h-[650px] flex flex-col relative mt-2 shadow-2xl overflow-hidden font-sans">
+                            <div class="bg-gray-100/90 backdrop-blur-md p-4 pt-10 text-center border-b border-gray-200 z-10 flex flex-col items-center">
+                                <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-xl mb-1 overflow-hidden">
+                                    <img id="sms-logo" src="" class="w-full h-full object-contain bg-white">
+                                </div>
+                                <span class="font-semibold text-xs text-gray-900">SMS Corporativo</span>
+                            </div>
+                            <div class="flex-1 p-4 flex flex-col gap-4 overflow-y-auto">
+                                <span class="text-center text-[10px] text-gray-400 font-medium my-2">Hoje 10:45</span>
+                                <div class="bg-[#e9e9eb] px-4 py-3 rounded-2xl rounded-tl-sm text-[15px] text-black shadow-sm self-start max-w-[80%]">
+                                    <div id="preview-sms-text" class="whitespace-pre-wrap leading-snug">Mensagem SMS</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="preview-push" class="preview-channel hidden w-full max-w-sm bg-[url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&w=400&q=80')] bg-cover bg-center border-8 border-gray-800 rounded-[2.5rem] h-[650px] flex flex-col relative mt-2 shadow-2xl overflow-hidden font-sans">
+                            <div class="pt-12 px-6 flex flex-col items-center flex-1">
+                                <span class="text-white text-5xl font-extralight mb-6">14:00</span>
+                                
+                                <div class="w-full bg-white/90 backdrop-blur-lg rounded-2xl p-4 shadow-lg flex gap-3 items-start mt-4">
+                                    <img id="push-logo" src="" class="w-10 h-10 rounded-lg object-contain bg-white border border-gray-200 p-1 shrink-0">
+                                    <div class="flex flex-col flex-1 overflow-hidden">
+                                        <div class="flex justify-between items-center mb-0.5">
+                                            <span class="font-semibold text-[13px] text-gray-900">Aplicativo</span>
+                                            <span class="text-[11px] text-gray-500">agora</span>
+                                        </div>
+                                        <span id="preview-push-title" class="font-bold text-[13px] text-gray-900 truncate">Título do Push</span>
+                                        <span id="preview-push-text" class="text-[13px] text-gray-700 leading-snug mt-0.5 break-words">Mensagem do push notification gerada pela IA.</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -152,8 +204,8 @@
 
     <div id="loading-overlay" class="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden-step">
         <div class="loading-spinner border-4 border-gray-200 border-t-blue-600 rounded-full w-16 h-16 mb-6"></div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">A Caaqui IA (Gemini) está trabalhando...</h2>
-        <p id="loading-text" class="text-gray-600 font-medium">Interpretando briefing e regras de negócio...</p>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">A IA está processando seus insumos...</h2>
+        <p id="loading-text" class="text-gray-600 font-medium">Adaptando formatos para Email, WhatsApp, SMS e Push...</p>
     </div>
 
     <script src="script.js"></script>
