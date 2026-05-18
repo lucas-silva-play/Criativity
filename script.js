@@ -1,3 +1,6 @@
+// ==========================================
+// VARIÁVEIS GLOBAIS E ESTADO
+// ==========================================
 let currentStep = 1;
 let canaisSelecionados = [];
 let briefingAtual = "";
@@ -6,6 +9,9 @@ let canalAtivo = "";
 // Objeto que armazenará a resposta dinâmica da IA
 let conteudoGeradoIA = {};
 
+// ==========================================
+// NAVEGAÇÃO E FLUXO PRINCIPAL
+// ==========================================
 function updateBadges() {
     document.querySelectorAll('header span[id^="badge-step-"]').forEach((el, index) => {
         el.className = (index + 1 === currentStep) ? "font-bold text-blue-600" : "";
@@ -32,15 +38,10 @@ function goBack() { if (currentStep > 1) goToStep(currentStep - 1); }
 // ==========================================
 // INTEGRAÇÃO GEMINI (SIMULADOR INTELIGENTE)
 // ==========================================
-/* NOTA DE DESENVOLVIMENTO:
-   No ambiente real, você substituirá a lógica interna desta função por uma chamada
-   para a API do Google Gemini (ex: fetch('https://generativelanguage.googleapis.com/...'))
-   enviando o "briefing" no prompt. 
-*/
 async function invocarGeminiIA(briefing) {
     const texto = briefing.toLowerCase();
     
-    // CASO 1: O AI identifica que é um cenário Assistencial/Médico (Seu briefing)
+    // CASO 1: Cenário Assistencial/Médico (Seu briefing)
     if (texto.includes('exame') || texto.includes('jejum') || texto.includes('paciente')) {
         return {
             Email: {
@@ -48,7 +49,6 @@ async function invocarGeminiIA(briefing) {
                 corpo: `Seu exame está confirmado para amanhã!\n\nPara garantir a qualidade técnica e evitar reagendamentos, é essencial seguir as orientações abaixo:\n\n• Jejum mínimo de 4 horas antes do exame.\n• Ingestão moderada de água é permitida.\n• Suas medicações habituais podem ser tomadas com pouca água.\n\nDocumentos Obrigatórios:\nNão esqueça de levar um documento oficial com foto e CPF.\n\nChegue com antecedência ao Centro Médico.`,
                 cta: "VER DETALHES DO AGENDAMENTO",
                 
-                // Diretrizes Visuais baseadas na interpretação do briefing ("clean, texto, sem promo")
                 usarImagemHero: false, 
                 logo: "CENTRO MÉDICO",
                 tema: {
@@ -65,6 +65,9 @@ async function invocarGeminiIA(briefing) {
             },
             SMS: {
                 msg: "Lembrete: Seu exame é amanhã. Necessário jejum de 4h (água permitida). Traga doc c/ foto e CPF. Acesse para detalhes: link.com/exame"
+            },
+            WebPush: {
+                msg: "Seu exame é amanhã! Veja o preparo de jejum de 4h obrigatório."
             }
         };
     } 
@@ -93,6 +96,9 @@ async function invocarGeminiIA(briefing) {
             },
             SMS: {
                 msg: "Nova Coleção! Garanta suas peças com 10% OFF usando o código VIP10. Acesse link.com/loja"
+            },
+            WebPush: {
+                msg: "Coleção exclusiva liberada! 10% OFF hoje."
             }
         };
     }
@@ -151,7 +157,8 @@ function alternarCanal(canal, btnElement) {
     const copyContainer = document.getElementById('copy-fields-container');
     document.querySelectorAll('.preview-channel').forEach(el => el.classList.add('hidden'));
 
-    const dados = conteudoGeradoIA[canal] || conteudoGeradoIA['Email'];
+    const chaveIA = canal.replace(' ', ''); // Trata "Web Push" para "WebPush"
+    const dados = conteudoGeradoIA[chaveIA] || conteudoGeradoIA['Email'];
 
     if (canal === 'Email') {
         document.getElementById('preview-email').classList.remove('hidden');
@@ -171,7 +178,6 @@ function alternarCanal(canal, btnElement) {
             </div>
         `;
         
-        // Aplica as diretrizes visuais lidas do briefing pela IA
         const root = document.documentElement;
         root.style.setProperty('--header-bg', dados.tema.headerBg);
         root.style.setProperty('--header-color', dados.tema.headerColor);
@@ -187,7 +193,7 @@ function alternarCanal(canal, btnElement) {
             imgBlock.style.display = 'block';
             document.getElementById('hero-image-preview').src = dados.heroImgUrl;
         } else {
-            imgBlock.style.display = 'none'; // Oculta a imagem (briefing assistencial "clean")
+            imgBlock.style.display = 'none';
         }
         
         sincronizarCopy();
@@ -199,7 +205,7 @@ function alternarCanal(canal, btnElement) {
         copyContainer.innerHTML = `
             <div class="mb-4 flex-1 flex flex-col">
                 <label class="block text-xs font-bold text-gray-500 mb-1">Mensagem de ${canal}</label>
-                <textarea id="ia-mobile-msg" class="w-full flex-1 border rounded p-2 bg-gray-50 text-sm focus:outline-none" oninput="sincronizarMobile()">${dados.msg}</textarea>
+                <textarea id="ia-mobile-msg" class="w-full flex-1 border rounded p-2 bg-gray-50 text-sm focus:outline-none h-40" oninput="sincronizarMobile()">${dados.msg}</textarea>
             </div>
         `;
         sincronizarMobile();
@@ -220,7 +226,11 @@ function sincronizarMobile() {
     }
 }
 
-// Helpers de input de Arquivo e Links (Mantidos do código anterior)
+// ==========================================
+// ARQUIVOS E LINKS (STEP 1)
+// ==========================================
+
+// Feedback do upload de arquivos
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('upload-insumos');
     if(fileInput) {
@@ -236,11 +246,63 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let linksInsumos = [];
+
+// Função que valida e adiciona o link na matriz
 function adicionarLinkInsumo() {
     const inputUrl = document.getElementById('input-insumo-link');
     const url = inputUrl.value.trim();
-    if (url) {
-        linksInsumos.push(url.startsWith('http') ? url : `https://${url}`);
-        inputUrl.value = '';
+    
+    // Expressão regular simples para validar a URL
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    
+    if (url && urlPattern.test(url) && !linksInsumos.includes(url)) {
+        // Se a URL não tiver http/https, adiciona por padrão
+        const urlFinal = url.startsWith('http') ? url : `https://${url}`;
+        
+        linksInsumos.push(urlFinal);
+        atualizarListaLinks();
+        inputUrl.value = ''; // limpa o input
+    } else if (!urlPattern.test(url) && url !== "") {
+        alert("Por favor, insira um link válido.");
     }
+}
+
+// Escuta a tecla Enter no input de link
+document.getElementById('input-insumo-link')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); 
+        adicionarLinkInsumo();
+    }
+});
+
+// Remove o link da memória e da tela
+function removerLinkInsumo(index) {
+    linksInsumos.splice(index, 1);
+    atualizarListaLinks();
+}
+
+// Renderiza visualmente as "Tags" de links na tela
+function atualizarListaLinks() {
+    const container = document.getElementById('lista-links-insumos');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    linksInsumos.forEach((link, index) => {
+        let domain = link;
+        try {
+            // Tenta exibir apenas o domínio principal
+            domain = new URL(link).hostname.replace('www.', '');
+        } catch(e) {}
+
+        container.innerHTML += `
+            <div class="flex items-center gap-2 bg-white border border-gray-200 shadow-sm px-3 py-1.5 rounded-full text-xs font-medium text-gray-700 animate-fade-in">
+                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                <a href="${link}" target="_blank" class="truncate max-w-[150px] hover:text-blue-600 hover:underline" title="${link}">${domain}</a>
+                <button type="button" onclick="removerLinkInsumo(${index})" class="text-gray-400 hover:text-red-500 ml-1 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        `;
+    });
 }
