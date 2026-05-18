@@ -6,8 +6,9 @@ let canaisSelecionados = [];
 let briefingAtual = "";
 let canalAtivo = "";
 
-// Armazena URLs de imagens/arquivos lidos no Step 1
+// Armazena URLs de imagens lidas no Step 1 e os links adicionados
 let assetsCarregados = { imagens: [] };
+let linksInsumos = []; 
 
 // Objeto que armazenará a resposta dinâmica da IA
 let conteudoGeradoIA = {};
@@ -44,7 +45,7 @@ function goBack() { if (currentStep > 1) goToStep(currentStep - 1); }
 async function invocarGeminiIA(briefing) {
     const texto = briefing.toLowerCase();
     
-    // Insumos lidos (Usa o fallback se o usuário não fizer upload)
+    // Insumos lidos (Usa fallback de mercado se o usuário não fizer upload)
     const urlLogo = assetsCarregados.imagens.length > 0 ? assetsCarregados.imagens[0] : "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Health_icon.svg/1024px-Health_icon.svg.png";
     const urlHero = assetsCarregados.imagens.length > 1 ? assetsCarregados.imagens[1] : (assetsCarregados.imagens[0] || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80");
 
@@ -77,8 +78,7 @@ async function invocarGeminiIA(briefing) {
             }
         };
     } 
-    
-    // CASO 2: Varejo / Moda / Genérico
+    // CASO 2: Varejo / Genérico
     else {
         return {
             Email: {
@@ -110,7 +110,7 @@ async function invocarGeminiIA(briefing) {
 }
 
 // ==========================================
-// PROCESSAMENTO
+// PROCESSAMENTO GERAL
 // ==========================================
 async function processarComIA() {
     canaisSelecionados = Array.from(document.querySelectorAll('input[name="canais"]:checked')).map(cb => cb.value);
@@ -151,14 +151,12 @@ function configurarEstudioMulticanal() {
 function alternarCanal(canal, btnElement) {
     canalAtivo = canal;
     
-    // UI das Tabs
     Array.from(document.getElementById('channel-tabs').children).forEach(btn => {
         btn.classList.remove('border-blue-600', 'text-blue-600');
         btn.classList.add('border-transparent', 'text-gray-500');
     });
     btnElement.classList.add('border-blue-600', 'text-blue-600');
 
-    // UI Renderização
     const copyContainer = document.getElementById('copy-fields-container');
     document.querySelectorAll('.preview-channel').forEach(el => el.classList.add('hidden'));
 
@@ -199,7 +197,7 @@ function alternarCanal(canal, btnElement) {
     } 
     else if (canal === 'WhatsApp') {
         document.getElementById('preview-whatsapp').classList.remove('hidden');
-        document.getElementById('wpp-logo').src = dados.logoUrl; // Injeta o logo na foto de perfil
+        document.getElementById('wpp-logo').src = dados.logoUrl;
         
         const mediaContainer = document.getElementById('wpp-media-container');
         if(dados.enviarImagem) {
@@ -249,24 +247,20 @@ function alternarCanal(canal, btnElement) {
 }
 
 function sincronizarCopy() {
-    // Email
     if(canalAtivo === 'Email' && document.getElementById('preview-email-title')) {
         document.getElementById('preview-email-title').innerText = document.getElementById('ia-title').value;
         document.getElementById('preview-email-text').innerText = document.getElementById('ia-corpo').value;
         document.getElementById('preview-email-btn').innerText = document.getElementById('ia-cta').value;
     }
-    // WhatsApp
     if(canalAtivo === 'WhatsApp' && document.getElementById('preview-whatsapp-text')) {
         document.getElementById('preview-whatsapp-text').innerText = document.getElementById('ia-whatsapp-msg').value;
     }
-    // SMS
     if(canalAtivo === 'SMS' && document.getElementById('preview-sms-text')) {
         const txt = document.getElementById('ia-sms-msg').value;
         document.getElementById('preview-sms-text').innerText = txt;
         document.getElementById('sms-counter').innerText = `${txt.length}/160`;
         document.getElementById('sms-counter').style.color = txt.length > 160 ? 'red' : 'gray';
     }
-    // Push
     if((canalAtivo === 'Web Push' || canalAtivo === 'App Push') && document.getElementById('preview-push-title')) {
         document.getElementById('preview-push-title').innerText = document.getElementById('ia-push-title').value;
         document.getElementById('preview-push-text').innerText = document.getElementById('ia-push-msg').value;
@@ -274,8 +268,10 @@ function sincronizarCopy() {
 }
 
 // ==========================================
-// UPLOADS E LINKS (STEP 1)
+// UPLOADS E LINKS (STEP 1) - CORRIGIDO
 // ==========================================
+
+// 1. Upload de Imagens
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('upload-insumos');
     if(fileInput) {
@@ -302,4 +298,60 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // 2. Listener do Enter para inclusão de Links
+    const linkInput = document.getElementById('input-insumo-link');
+    if(linkInput) {
+        linkInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                adicionarLinkInsumo();
+            }
+        });
+    }
 });
+
+// 3. Funções de Inclusão/Remoção de Links
+function adicionarLinkInsumo() {
+    const inputUrl = document.getElementById('input-insumo-link');
+    const url = inputUrl.value.trim();
+    
+    // Validação regex simples de URL
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    
+    if (url && urlPattern.test(url) && !linksInsumos.includes(url)) {
+        const urlFinal = url.startsWith('http') ? url : `https://${url}`;
+        linksInsumos.push(urlFinal);
+        atualizarListaLinks();
+        inputUrl.value = ''; // Limpa o campo
+    } else if (!urlPattern.test(url) && url !== "") {
+        alert("Por favor, insira um link válido.");
+    }
+}
+
+function removerLinkInsumo(index) {
+    linksInsumos.splice(index, 1);
+    atualizarListaLinks();
+}
+
+function atualizarListaLinks() {
+    const container = document.getElementById('lista-links-insumos');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    linksInsumos.forEach((link, index) => {
+        let domain = link;
+        try { 
+            domain = new URL(link).hostname.replace('www.', ''); 
+        } catch(e) {}
+        
+        container.innerHTML += `
+            <div class="flex items-center gap-2 bg-white border border-gray-200 shadow-sm px-3 py-1.5 rounded-full text-xs font-medium text-gray-700">
+                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                <a href="${link}" target="_blank" class="truncate max-w-[150px] hover:text-blue-600 hover:underline">${domain}</a>
+                <button type="button" onclick="removerLinkInsumo(${index})" class="text-gray-400 hover:text-red-500 ml-1 transition">✖</button>
+            </div>
+        `;
+    });
+}
