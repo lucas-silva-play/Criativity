@@ -33,6 +33,11 @@ function goToStep(step) {
     } else {
         footer.classList.remove('hidden-step');
         document.getElementById('btn-next').classList.toggle('hidden-step', currentStep === 3);
+        
+        // GATILHO CORRIGIDO: Chama a renderização da exportação ao chegar no step 3
+        if (currentStep === 3) {
+            gerarTelaExportacao();
+        }
     }
     updateBadges();
 }
@@ -268,7 +273,7 @@ function sincronizarCopy() {
 }
 
 // ==========================================
-// UPLOADS E LINKS (STEP 1) - CORRIGIDO
+// UPLOADS E LINKS (STEP 1) - INTOCADOS DA ÚLTIMA VERSÃO
 // ==========================================
 
 // 1. Upload de Imagens
@@ -354,4 +359,117 @@ function atualizarListaLinks() {
             </div>
         `;
     });
+}
+
+// ==========================================
+// EXPORTAÇÃO (STEP 3) - ADICIONADO E RESTAURADO
+// ==========================================
+function gerarTelaExportacao() {
+    const container = document.getElementById('export-container');
+    if (!container) return;
+    container.innerHTML = ''; // Limpar antes de popular
+
+    canaisSelecionados.forEach(canal => {
+        let content = '';
+        const chaveIA = canal.replace(' ', '');
+        const dados = conteudoGeradoIA[chaveIA] || conteudoGeradoIA['Email'];
+
+        if(canal === 'Email') {
+            // Constrói um HTML simples com base no layout aprovado no Step 2
+            const htmlCode = `
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; font-family: Arial, sans-serif;">
+  <tr>
+    <td align="center" style="padding: 40px 0;">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e5e7eb;">
+        <tr>
+          <td align="center" style="padding: 24px; border-bottom: 1px solid #f3f4f6;">
+            <img src="${dados.logoUrl}" alt="Logo" style="max-height: 50px;">
+          </td>
+        </tr>
+        ${dados.heroUrl ? `
+        <tr>
+          <td>
+            <img src="${dados.heroUrl}" alt="Banner" style="width: 100%; max-height: 280px; object-fit: cover; display: block;">
+          </td>
+        </tr>` : ''}
+        <tr>
+          <td style="padding: 40px;">
+            <h1 style="color: ${dados.tema.titleColor}; font-size: 22px; margin-bottom: 20px;">${document.getElementById('ia-title') ? document.getElementById('ia-title').value : dados.title}</h1>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${document.getElementById('ia-corpo') ? document.getElementById('ia-corpo').value : dados.corpo}</p>
+            <div style="text-align: center; margin-top: 40px;">
+              <a href="#" style="background-color: ${dados.tema.btnBg}; color: ${dados.tema.btnColor}; padding: 16px 40px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block;">${document.getElementById('ia-cta') ? document.getElementById('ia-cta').value : dados.cta}</a>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`.trim();
+
+            content = `
+                <div class="w-full flex gap-4 bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <div class="flex-1">
+                        <label class="font-bold mb-2 flex justify-between items-center text-sm text-gray-700">
+                            <span>📧 Código HTML (${canal})</span>
+                        </label>
+                        <textarea id="export-html-code" class="w-full h-48 border border-gray-300 rounded-lg p-3 bg-gray-900 text-green-400 font-mono text-xs focus:outline-none" readonly>${htmlCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                    </div>
+                    <div class="w-1/4 flex flex-col justify-end gap-2">
+                        <button onclick="copiarTexto('export-html-code')" class="bg-white border border-gray-300 text-gray-700 py-3 rounded text-sm font-bold hover:bg-gray-100 transition shadow-sm flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            Copiar HTML
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Trata as exportações de texto (SMS, WhatsApp, Push)
+            let elId = "";
+            let msgExport = "";
+            
+            if (canal === 'WhatsApp') { elId = 'ia-whatsapp-msg'; }
+            else if (canal === 'SMS') { elId = 'ia-sms-msg'; }
+            else if (canal === 'Web Push' || canal === 'App Push') { elId = 'ia-push-msg'; }
+
+            // Pega o texto atualizado (caso o usuário tenha editado no Step 2)
+            if (document.getElementById(elId)) {
+                msgExport = document.getElementById(elId).value;
+                if (canal === 'Web Push' || canal === 'App Push') {
+                    const pushTitle = document.getElementById('ia-push-title').value;
+                    msgExport = `Título: ${pushTitle}\n\nMensagem: ${msgExport}`;
+                }
+            } else {
+                msgExport = (canal === 'Web Push' || canal === 'App Push') ? `Título: ${dados.titulo}\n\nMensagem: ${dados.msg}` : dados.msg;
+            }
+
+            content = `
+                <div class="w-full flex gap-4 bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <div class="flex-1">
+                        <label class="font-bold mb-2 flex justify-between items-center text-sm text-gray-700">
+                            <span>📱 Texto Formatado (${canal})</span>
+                        </label>
+                        <textarea id="export-txt-${chaveIA}" class="w-full h-24 border border-gray-300 rounded-lg p-3 bg-white text-gray-800 text-sm focus:outline-none" readonly>${msgExport}</textarea>
+                    </div>
+                    <div class="w-1/4 flex flex-col justify-end gap-2">
+                        <button onclick="copiarTexto('export-txt-${chaveIA}')" class="bg-white border border-gray-300 text-gray-700 py-3 rounded text-sm font-bold hover:bg-gray-100 flex items-center justify-center gap-2 transition shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            Copiar Texto
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML += content;
+    });
+}
+
+// Função utilitária para copiar texto para a área de transferência
+function copiarTexto(elementId) {
+    const el = document.getElementById(elementId);
+    if(el) {
+        el.select();
+        document.execCommand('copy');
+        alert('Copiado para a área de transferência com sucesso!');
+    }
 }
