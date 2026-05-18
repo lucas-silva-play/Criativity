@@ -1,6 +1,8 @@
 // ==========================================
-// VARIÁVEIS GLOBAIS E ESTADO
+// CHAVE DE API GEMINI & VARIÁVEIS GLOBAIS
 // ==========================================
+const GEMINI_API_KEY = "AIzaSyBNp2sCirP3qwlaFBuDbrnBg4Rm_Yl12Wg";
+
 let currentStep = 1;
 let canaisSelecionados = [];
 let briefingAtual = "";
@@ -28,7 +30,7 @@ const dictCategorias = {
 };
 
 // ==========================================
-// LOGICA DE INTERFACE (NAVEGAÇÃO E CASCATA)
+// LÓGICA DE INTERFACE (NAVEGAÇÃO E CASCATA)
 // ==========================================
 function updateBadges() {
     document.querySelectorAll('header span[id^="badge-step-"]').forEach((el, index) => {
@@ -79,114 +81,83 @@ function atualizarSubcategorias() {
 }
 
 // ==========================================
-// INTEGRAÇÃO GEMINI (GERADOR DINÂMICO CRM)
+// INTEGRAÇÃO GEMINI REAL (GERAÇÃO INICIAL)
 // ==========================================
 async function invocarGeminiIA(briefing, cat, subcat) {
-    const texto = briefing.toLowerCase();
-    
-    // Insumos lidos (Fallback genérico se não tiver upload)
     const urlLogo = assetsCarregados.imagens.length > 0 ? assetsCarregados.imagens[0] : "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Health_icon.svg/1024px-Health_icon.svg.png";
     const urlHero = assetsCarregados.imagens.length > 1 ? assetsCarregados.imagens[1] : (assetsCarregados.imagens[0] || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80");
 
-    const isSaude = texto.includes('exame') || texto.includes('jejum') || texto.includes('médico') || texto.includes('paciente') || texto.includes('consulta');
+    const prompt = `
+    Você é um Copywriter Especialista em CRM e Marketing.
+    Crie os textos para uma campanha multicanal baseada rigorosamente nestas informações:
     
-    // Definição de Marca/Tema
-    let nomeMarca = isSaude ? "dr.consulta" : "Nossa Marca";
-    let tema = isSaude 
-        ? { titleColor: "#3A10E0", btnBg: "#3A10E0", btnColor: "#ffffff" } 
-        : { titleColor: "#111827", btnBg: "#000000", btnColor: "#ffffff" };
+    Categoria: ${cat}
+    Tipo de Comunicação: ${subcat}
+    Briefing do Cliente: ${briefing}
+    
+    Regras e Diretrizes:
+    1. Respeite o tom de voz e o manifesto da marca informado no briefing.
+    2. Se houver regras de clusters ou ofertas (ex: R$ 400 OFF em compras acima de R$ 1.200), aplique de forma natural.
+    3. Para Email: Forneça Assunto, Título Interno, Corpo persuasivo e Texto de Botão (CTA curto). Sugira um Tema (cores hexadecimais alinhadas à marca).
+    4. Para WhatsApp: Utilize formatação com asteriscos (*) para negrito e use emojis pertinentes.
+    5. Para SMS: Máximo de 160 caracteres, seja direto. Não use acentos nem caracteres especiais.
+    6. Para WebPush: Título muito chamativo e mensagem curta.
+    
+    Retorne APENAS um JSON estrito e válido. NENHUM texto fora do JSON.
+    O formato exato obrigatório é:
+    {
+        "Email": {
+            "assunto": "...",
+            "title": "...",
+            "corpo": "...",
+            "cta": "...",
+            "tema": { "titleColor": "#000000", "btnBg": "#000000", "btnColor": "#ffffff" }
+        },
+        "WhatsApp": {
+            "msg": "...",
+            "enviarImagem": true
+        },
+        "SMS": {
+            "msg": "..."
+        },
+        "WebPush": {
+            "titulo": "...",
+            "msg": "..."
+        }
+    }`;
 
-    // Bases de Copy Dinâmica Baseada na Categoria/Subcategoria
-    let emailAssunto = ""; let emailTitle = ""; let emailCorpo = ""; let emailCta = "SABER MAIS";
-    let wppMsg = ""; let smsMsg = ""; let pushTitle = ""; let pushMsg = "";
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { response_mime_type: "application/json" }
+            })
+        });
 
-    if (cat === 'Transacional') {
-        emailAssunto = `Atualização: ${subcat} - ${nomeMarca}`;
-        emailTitle = "Aviso Importante";
-        emailCorpo = `Olá!\n\nTemos uma atualização importante referente a: ${subcat}.\n\nPor favor, acesse sua conta no botão abaixo para verificar todos os detalhes com segurança.`;
-        emailCta = "ACESSAR DETALHES";
-        wppMsg = `Olá! 🔒 Passando para informar uma atualização da ${nomeMarca} sobre: ${subcat}.\nAcesse seu app para mais detalhes.`;
-        smsMsg = `${nomeMarca}: Aviso sobre ${subcat}. Acesse sua conta para verificar os detalhes.`;
-        pushTitle = "Atualização Importante 🔒"; pushMsg = `Verifique novidades sobre ${subcat}.`;
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
-        if(subcat.includes('pedido')) {
-            emailAssunto = "O seu pedido está a caminho! 🚚";
-            emailTitle = "Acompanhe a sua entrega";
-            emailCorpo = "Boas notícias! O seu pacote acabou de sair do nosso centro de distribuição e já está a caminho.\n\nFique atento(a) para receber nas próximas horas.";
-            emailCta = "RASTREAR PEDIDO";
-            wppMsg = `Olá! 📦 Boas notícias da ${nomeMarca}: seu pedido saiu para entrega e chegará em breve!`;
-        }
-    } 
-    else if (cat === 'Lifecycle') {
-        if(subcat.includes('Boas-vindas')) {
-            emailAssunto = `Bem-vindo(a) à ${nomeMarca}! 🎉`;
-            emailTitle = "Temos o prazer de ter você aqui.";
-            emailCorpo = isSaude 
-                ? "Agora você faz parte da rede de saúde que mais cresce. Cuidar de você é o nosso compromisso.\n\nConheça nossos exames, telemedicina e assinaturas com condições especiais."
-                : "Sua jornada com a gente acaba de começar. Descubra benefícios exclusivos, navegue pelas nossas categorias e aproveite 10% OFF na sua primeira compra.";
-            emailCta = "COMEÇAR AGORA";
-            wppMsg = `Olá! 👋 Seja muito bem-vindo(a) à ${nomeMarca}. Estamos muito felizes em ter você aqui. Precisando, é só chamar!`;
-            smsMsg = `Bem-vindo(a) a ${nomeMarca}! Acesse nosso site e descubra as vantagens de ser cliente.`;
-            pushTitle = "Bem-vindo(a)! 🎉"; pushMsg = "Comece a explorar todos os nossos benefícios.";
-        } 
-        else if (subcat.includes('Abandonada')) {
-            emailAssunto = "Deixou algo para trás? 🛒";
-            emailTitle = "Não perca sua seleção!";
-            emailCorpo = isSaude 
-                ? "Notamos que você iniciou o agendamento, mas não concluiu. A sua saúde não pode esperar! Retome de onde parou de forma rápida e prática."
-                : "Os itens no seu carrinho estão te esperando. Garanta suas escolhas antes que os estoques acabem. Volte e finalize sua compra hoje.";
-            emailCta = isSaude ? "CONTINUAR AGENDAMENTO" : "VOLTAR AO CARRINHO";
-            wppMsg = `Oi! 🛒 Vimos que você esqueceu algo na ${nomeMarca}. Que tal voltar e finalizar agora mesmo com segurança?`;
-            smsMsg = `${nomeMarca}: Seu carrinho esta aguardando! Finalize agora para garantir seus itens.`;
-            pushTitle = "Você esqueceu algo! 🛒"; pushMsg = "Volte e finalize seu processo em 1 clique.";
-        }
-        else {
-            // Reativação / Comemorativas Genéricas
-            emailAssunto = `Especial para você - ${nomeMarca}`;
-            emailTitle = subcat;
-            emailCorpo = `Preparamos algo muito especial para este momento: ${subcat}.\n\nAproveite as condições únicas que separamos para celebrar com você.`;
-            wppMsg = `Olá! ✨ Preparamos algo especial na ${nomeMarca} focado em: ${subcat}. Venha conferir!`;
-            smsMsg = `${nomeMarca}: Condicoes unicas de ${subcat} para voce. Acesse nosso site.`;
-            pushTitle = "Oferta Especial ✨"; pushMsg = `Confira as novidades para ${subcat}.`;
-        }
-    }
-    else if (cat === 'Pesquisa') {
-        emailAssunto = "Queremos ouvir a sua opinião!";
-        emailTitle = "Como foi sua experiência?";
-        emailCorpo = `A sua opinião é fundamental para a ${nomeMarca} continuar melhorando.\n\nLeva menos de 1 minuto para responder nossa pesquisa de ${subcat}. Agradecemos muito o seu tempo!`;
-        emailCta = "RESPONDER PESQUISA";
-        wppMsg = `Olá! 📊 Para continuarmos melhorando, gostaríamos de ouvir você. Leva só 1 minutinho para avaliar a ${nomeMarca}. Podemos contar com você?`;
-        smsMsg = `${nomeMarca}: Como foi sua experiencia? Acesse o link e deixe sua avaliacao rapida!`;
-        pushTitle = "Avalie sua experiência ⭐"; pushMsg = "Sua opinião nos ajuda a melhorar. Participe!";
-    }
-    else {
-        // Fallback robusto para Promocional, Relacionamento, Operacional...
-        // Se for Saúde e contiver as palavras "exame/jejum", injeta o texto que tínhamos de match perfeito
-        if (isSaude && texto.includes('jejum')) {
-            emailAssunto = "Atenção ao preparo: Seu exame é amanhã";
-            emailTitle = "Importante: Orientações para o seu exame";
-            emailCorpo = `Para garantir a qualidade técnica e evitar reagendamentos da sua consulta, é essencial seguir rigorosamente as orientações abaixo:\n\n✔️ Jejum mínimo de 4 horas antes do exame.\n✔️ A ingestão moderada de água é permitida.\n✔️ Suas medicações habituais podem ser tomadas com pouca água.\n\n⚠️ Documentos Obrigatórios:\nNão esqueça de levar um documento oficial com foto e CPF.\n\nChegue com antecedência ao ${nomeMarca}.`;
-            emailCta = "VER DETALHES DO EXAME";
-            wppMsg = `Olá! 🏥 Lembrete assistencial da ${nomeMarca}: Seu exame é amanhã.\n\n⚠️ *PREPARO OBRIGATÓRIO:*\n• Jejum mínimo de 4 horas.\n• Água moderada é permitida.\n• Remédios de rotina podem ser tomados.\n\n📄 Traga documento com foto e CPF.\nNos vemos amanhã!`;
-            smsMsg = `${nomeMarca}: Lembrete do seu exame amanha. Necessario jejum de 4h (agua permitida). Traga doc original c/ foto e CPF.`;
-            pushTitle = `${nomeMarca}: Exame Amanhã! ⏰`; pushMsg = "Confira as orientações obrigatórias de jejum de 4h.";
-        } else {
-            emailAssunto = `Novidade da ${nomeMarca}: ${subcat}`;
-            emailTitle = subcat;
-            emailCorpo = `Elaboramos esta comunicação focada nos nossos objetivos de ${cat}.\n\nAo focar em ${subcat}, garantimos que você receba sempre o conteúdo mais relevante e as melhores oportunidades da ${nomeMarca}.`;
-            emailCta = "CONFERIR AGORA";
-            wppMsg = `Olá! 🚀 Trazendo atualizações da ${nomeMarca} sobre ${subcat}. Acesse o link para saber mais detalhes!`;
-            smsMsg = `${nomeMarca}: Novidades sobre ${subcat}. Acesse e confira os detalhes em primeira mao.`;
-            pushTitle = "Novidade Fresquinha 🚀"; pushMsg = `Veja agora as atualizações de ${subcat}.`;
-        }
-    }
+        const data = await response.json();
+        const jsonText = data.candidates[0].content.parts[0].text;
+        const gerado = JSON.parse(jsonText);
 
-    return {
-        Email: { assunto: emailAssunto, title: emailTitle, corpo: emailCorpo, cta: emailCta, tema: tema, logoUrl: urlLogo, heroUrl: urlHero },
-        WhatsApp: { msg: wppMsg, enviarImagem: true, mediaUrl: urlHero, logoUrl: urlLogo },
-        SMS: { msg: smsMsg, logoUrl: urlLogo },
-        WebPush: { titulo: pushTitle, msg: pushMsg, logoUrl: urlLogo }
-    };
+        // Anexando URLs de imagens aos resultados reais gerados pela IA
+        gerado.Email.logoUrl = urlLogo;
+        gerado.Email.heroUrl = urlHero;
+        gerado.WhatsApp.logoUrl = urlLogo;
+        gerado.WhatsApp.mediaUrl = urlHero;
+        gerado.SMS.logoUrl = urlLogo;
+        gerado.WebPush.logoUrl = urlLogo;
+
+        return gerado;
+
+    } catch (error) {
+        console.error("Erro ao invocar a API do Gemini:", error);
+        alert("Ocorreu um erro ao comunicar com o Gemini. Verifique o console.");
+        // Fallback de segurança para não quebrar a aplicação caso a API falhe
+        return gerarFallbackIA(urlLogo, urlHero); 
+    }
 }
 
 // ==========================================
@@ -209,19 +180,17 @@ async function processarComIA() {
     if(canaisSelecionados.length === 0) { alert("Selecione pelo menos um canal."); return; }
 
     document.getElementById('loading-overlay').classList.remove('hidden-step');
-    document.getElementById('loading-text').innerHTML = `Processando lógica de ${categoriaSelecionada} (${subcategoriaSelecionada})...<br>Extraindo paleta de cores e logos fiéis...`;
+    document.getElementById('loading-text').innerHTML = `O Gemini 1.5 Pro está gerando a estratégia de ${categoriaSelecionada}...<br>Aplicando manifesto e regras do briefing...`;
     
     conteudoGeradoIA = await invocarGeminiIA(briefingAtual, categoriaSelecionada, subcategoriaSelecionada);
 
-    setTimeout(() => {
-        configurarEstudioMulticanal();
-        document.getElementById('loading-overlay').classList.add('hidden-step');
-        goToStep(2);
-    }, 2500);
+    configurarEstudioMulticanal();
+    document.getElementById('loading-overlay').classList.add('hidden-step');
+    goToStep(2);
 }
 
 // ==========================================
-// ESTÚDIO MULTICANAL E RENDERING DE ALTA FIDELIDADE
+// ESTÚDIO MULTICANAL E RENDERING
 // ==========================================
 function configurarEstudioMulticanal() {
     const tabsContainer = document.getElementById('channel-tabs');
@@ -276,9 +245,11 @@ function alternarCanal(canal, btnElement) {
         `;
         
         const root = document.documentElement;
-        root.style.setProperty('--title-color', dados.tema.titleColor);
-        root.style.setProperty('--btn-bg', dados.tema.btnBg);
-        root.style.setProperty('--btn-color', dados.tema.btnColor);
+        if(dados.tema) {
+            root.style.setProperty('--title-color', dados.tema.titleColor || "#000");
+            root.style.setProperty('--btn-bg', dados.tema.btnBg || "#000");
+            root.style.setProperty('--btn-color', dados.tema.btnColor || "#fff");
+        }
 
         document.getElementById('preview-logo-img').src = dados.logoUrl;
         document.getElementById('preview-hero-img').src = dados.heroUrl;
@@ -288,7 +259,7 @@ function alternarCanal(canal, btnElement) {
     else if (canal === 'WhatsApp') {
         document.getElementById('preview-whatsapp').classList.remove('hidden');
         document.getElementById('wpp-logo').src = dados.logoUrl;
-        document.querySelector('#preview-whatsapp span.font-semibold').innerText = dados.msg.includes('dr.consulta') ? 'dr.consulta' : 'Conta Comercial';
+        document.querySelector('#preview-whatsapp span.font-semibold').innerText = "Conta Comercial";
         
         const mediaContainer = document.getElementById('wpp-media-container');
         if(dados.enviarImagem) {
@@ -309,7 +280,7 @@ function alternarCanal(canal, btnElement) {
     else if (canal === 'SMS') {
         document.getElementById('preview-sms').classList.remove('hidden');
         document.getElementById('sms-logo').src = dados.logoUrl;
-        document.querySelector('#preview-sms span.font-semibold').innerText = dados.msg.includes('dr.consulta') ? 'dr.consulta' : 'SMS Corporativo';
+        document.querySelector('#preview-sms span.font-semibold').innerText = "SMS Corporativo";
 
         copyContainer.innerHTML = `
             <div class="flex-1 flex flex-col">
@@ -323,7 +294,7 @@ function alternarCanal(canal, btnElement) {
     else if (canal === 'Web Push' || canal === 'App Push') {
         document.getElementById('preview-push').classList.remove('hidden');
         document.getElementById('push-logo').src = dados.logoUrl;
-        document.querySelector('#preview-push span.font-semibold').innerText = dados.msg.includes('dr.consulta') ? 'App dr.consulta' : 'Aplicativo';
+        document.querySelector('#preview-push span.font-semibold').innerText = "Aplicativo";
 
         copyContainer.innerHTML = `
             <div>
@@ -361,9 +332,9 @@ function sincronizarCopy() {
 }
 
 // ==========================================
-// CHAT GEMINI - FUNCIONALIDADE
+// CHAT GEMINI - REFINAMENTO REALIZADO VIA API
 // ==========================================
-function enviarMensagemChat() {
+async function enviarMensagemChat() {
     const inputEl = document.getElementById('chat-input');
     const mensagem = inputEl.value.trim();
     if (!mensagem) return;
@@ -378,56 +349,76 @@ function enviarMensagemChat() {
 
     const idPensando = 'msg-' + Date.now();
     if(chatHistory) {
-        chatHistory.innerHTML += `<div id="${idPensando}" class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] opacity-70 animate-pulse">Ajustando criativo...</div>`;
+        chatHistory.innerHTML += `<div id="${idPensando}" class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] opacity-70 animate-pulse">O Gemini está reescrevendo a copy...</div>`;
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
-    setTimeout(() => {
-        const pensandoEl = document.getElementById(idPensando);
-        if(pensandoEl) pensandoEl.remove();
+    // Prepara o Prompt de Refino baseado no canal atual
+    let promptRefino = "";
+    if (canalAtivo === 'Email') {
+        const title = document.getElementById('ia-title').value;
+        const corpo = document.getElementById('ia-corpo').value;
+        promptRefino = `Você é um Copywriter Especialista. Melhore e reescreva a copy de E-mail abaixo baseando-se estritamente neste pedido: "${mensagem}".
+        \nTítulo Atual: ${title}\nCorpo Atual: ${corpo}
+        \nRetorne APENAS um JSON válido no formato: {"title": "novo titulo", "corpo": "novo corpo"}`;
+    } else if (canalAtivo === 'Web Push' || canalAtivo === 'App Push') {
+        const title = document.getElementById('ia-push-title').value;
+        const msgAtual = document.getElementById('ia-push-msg').value;
+        promptRefino = `Você é um Copywriter Especialista. Melhore a notificação Push abaixo baseando-se estritamente neste pedido: "${mensagem}".
+        \nTítulo Atual: ${title}\nMensagem Atual: ${msgAtual}
+        \nRetorne APENAS um JSON válido no formato: {"title": "novo titulo", "msg": "nova mensagem curta"}`;
+    } else {
+        const idCampo = canalAtivo === 'WhatsApp' ? 'ia-whatsapp-msg' : 'ia-sms-msg';
+        const msgAtual = document.getElementById(idCampo).value;
+        promptRefino = `Você é um Copywriter Especialista. Melhore e reescreva a mensagem de ${canalAtivo} abaixo baseando-se estritamente neste pedido: "${mensagem}".
+        \nMensagem Atual: ${msgAtual}
+        \nRetorne APENAS o texto da nova mensagem. Não inclua JSON, explicações ou comentários. Apenas o texto.`;
+    }
 
-        let respostaIA = "Pronto! O ajuste foi aplicado no preview considerando seu pedido.";
-        const msgLower = mensagem.toLowerCase();
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: promptRefino }] }]
+            })
+        });
 
+        const data = await response.json();
+        let respostaAPI = data.candidates[0].content.parts[0].text.trim();
+
+        // Limpa formatação Markdown que a API possa retornar
+        respostaAPI = respostaAPI.replace(/```json/g, "").replace(/```/g, "").trim();
+
+        // Aplica o texto refinado no DOM
         if (canalAtivo === 'Email') {
-            const tituloEl = document.getElementById('ia-title');
-            const corpoEl = document.getElementById('ia-corpo');
-            if(tituloEl && corpoEl) {
-                if (msgLower.includes('urgente') || msgLower.includes('atenção')) {
-                    tituloEl.value = "⚠️ " + tituloEl.value;
-                    corpoEl.value = "Atenção necessária!\n\n" + corpoEl.value + "\n\nPor favor, aja o mais rápido possível.";
-                } else if (msgLower.includes('curto') || msgLower.includes('resuma')) {
-                    corpoEl.value = "Resumo da comunicação:\n\n✔️ Detalhe importante 1\n✔️ Detalhe importante 2\n\nAcesse o link para mais informações!";
-                } else {
-                    corpoEl.value = corpoEl.value + "\n\n[Texto Adicionado]: " + mensagem;
-                }
-            }
-        } else if (canalAtivo === 'WhatsApp') {
-            const wppEl = document.getElementById('ia-whatsapp-msg');
-            if(wppEl) {
-                if (msgLower.includes('urgente')) {
-                    wppEl.value = "🚨 *MENSAGEM URGENTE*\n\n" + wppEl.value;
-                } else if (msgLower.includes('curto')) {
-                    wppEl.value = `Olá! ⚡ Este é um lembrete rápido sobre: ${subcategoriaSelecionada}. Acesse o app para detalhes.`;
-                } else {
-                    wppEl.value += "\n\n" + mensagem;
-                }
-            }
-        } else if (canalAtivo === 'SMS') {
-            const smsEl = document.getElementById('ia-sms-msg');
-            if(smsEl) smsEl.value = "AVISO: " + smsEl.value;
+            const result = JSON.parse(respostaAPI);
+            document.getElementById('ia-title').value = result.title;
+            document.getElementById('ia-corpo').value = result.corpo;
         } else if (canalAtivo === 'Web Push' || canalAtivo === 'App Push') {
-            const pushEl = document.getElementById('ia-push-msg');
-            if(pushEl) pushEl.value += " 🚨";
+            const result = JSON.parse(respostaAPI);
+            document.getElementById('ia-push-title').value = result.title;
+            document.getElementById('ia-push-msg').value = result.msg;
+        } else {
+            const idCampo = canalAtivo === 'WhatsApp' ? 'ia-whatsapp-msg' : 'ia-sms-msg';
+            document.getElementById(idCampo).value = respostaAPI;
         }
 
         sincronizarCopy();
-
+        
+        document.getElementById(idPensando).remove();
         if(chatHistory) {
-            chatHistory.innerHTML += `<div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] shadow-sm">${respostaIA}</div>`;
+            chatHistory.innerHTML += `<div class="bg-blue-100 text-blue-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] shadow-sm">Pronto! O Gemini reescreveu o texto conforme o seu pedido.</div>`;
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
-    }, 1200);
+
+    } catch (error) {
+        console.error("Erro no chat Gemini:", error);
+        document.getElementById(idPensando).remove();
+        if(chatHistory) {
+            chatHistory.innerHTML += `<div class="bg-red-100 text-red-800 p-2 rounded-lg rounded-tl-none self-start max-w-[90%] shadow-sm">Desculpe, ocorreu um erro de comunicação com a IA. Tente novamente.</div>`;
+        }
+    }
 }
 
 // ==========================================
@@ -539,7 +530,7 @@ function atualizarListaLinks() {
 }
 
 // ==========================================
-// EXPORTAÇÃO (STEP 3) - INTACTO
+// EXPORTAÇÃO (STEP 3) 
 // ==========================================
 function gerarTelaExportacao() {
     const container = document.getElementById('export-container');
@@ -695,4 +686,21 @@ function copiarTexto(elementId) {
         document.execCommand('copy');
         alert('Copiado para a área de transferência com sucesso!');
     }
+}
+
+// Fallback Helper se a API falhar
+function gerarFallbackIA(urlLogo, urlHero) {
+    return {
+        Email: {
+            assunto: "Confira as novidades preparadas para você",
+            title: "Oportunidade Exclusiva",
+            corpo: "Preparamos um conteúdo especial baseado nos insumos informados.\n\nAproveite as condições.",
+            cta: "SABER MAIS",
+            tema: { titleColor: "#111827", btnBg: "#000000", btnColor: "#ffffff" },
+            logoUrl: urlLogo, heroUrl: urlHero
+        },
+        WhatsApp: { msg: "Olá! ✨ Temos novidades para você. Acesse e confira.", enviarImagem: true, mediaUrl: urlHero, logoUrl: urlLogo },
+        SMS: { msg: "Novidades imperdiveis na nossa loja. Acesse o link e confira.", logoUrl: urlLogo },
+        WebPush: { titulo: "Novidade Liberada! ✨", msg: "Acesse agora e confira.", logoUrl: urlLogo }
+    };
 }
