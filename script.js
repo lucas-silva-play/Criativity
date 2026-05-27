@@ -1,7 +1,10 @@
 // ==========================================
 // CHAVE DE API GEMINI & VARIÁVEIS GLOBAIS
 // ==========================================
-const GEMINI_API_KEY = "AIzaSyBNp2sCirP3qwlaFBuDbrnBg4Rm_Yl12Wg";
+let GEMINI_API_KEY = localStorage.getItem("CAAQUI_GEMINI_KEY");
+
+function obterChaveAPI() {
+    if (!GEMINI_API_KEY) {
 
 let currentStep = 1;
 let canaisSelecionados = [];
