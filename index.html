@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criativity - Gerador de Criativos</title>
+    <title>Caaqui - Gerador de Criativos CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,7 +12,7 @@
     <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10">
         <div class="flex items-center gap-2">
             <div class="bg-blue-600 text-white font-bold p-2 rounded">C</div>
-            <h1 class="text-xl font-bold text-gray-800">Criativity <span class="text-sm font-normal text-gray-500">Tool</span></h1>
+            <h1 class="text-xl font-bold text-gray-800">Caaqui <span class="text-sm font-normal text-gray-500">Workspace</span></h1>
         </div>
         <div class="flex gap-4 text-sm text-gray-500">
             <span id="badge-step-1" class="font-bold text-blue-600">1. Briefing & Insumos</span>
@@ -26,8 +26,28 @@
         <section id="step-1" class="w-full max-w-3xl bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 class="text-2xl font-bold mb-6">Setup da Campanha</h2>
             
+            <div class="mb-6 flex gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">1. Categoria da Campanha</label>
+                    <select id="select-categoria" onchange="atualizarSubcategorias()" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <option value="">Selecione uma categoria...</option>
+                        <option value="Transacional">1. Transacional</option>
+                        <option value="Lifecycle">2. Life Cycle (Ciclo de Vida)</option>
+                        <option value="Promocional">3. Promocional / Comercial</option>
+                        <option value="Relacionamento">4. Relacionamento / Informativo</option>
+                        <option value="Pesquisa">5. Pesquisa e Satisfação</option>
+                        <option value="Operacional">6. Operacional e Institucional</option>
+                    </select>
+                </div>
+                <div class="flex-1 hidden" id="div-subcategoria">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Tipo de Comunicação</label>
+                    <select id="select-subcategoria" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    </select>
+                </div>
+            </div>
+
             <div class="mb-6">
-                <label class="block text-sm font-bold text-gray-700 mb-3">1. Canais de Comunicação</label>
+                <label class="block text-sm font-bold text-gray-700 mb-3">2. Canais de Comunicação</label>
                 <div class="flex flex-wrap gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition">
                         <input type="checkbox" name="canais" value="Email" class="w-4 h-4 text-blue-600" checked> E-mail
@@ -45,12 +65,12 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-bold text-gray-700 mb-2">2. Briefing</label>
-                <textarea id="input-briefing" rows="5" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Cole todo o briefing aqui... A IA vai interpretar tom de voz, regras de negócio e estrutura visual."></textarea>
+                <label class="block text-sm font-bold text-gray-700 mb-2">3. Briefing</label>
+                <textarea id="input-briefing" rows="4" class="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Cole todo o briefing aqui... A IA vai interpretar tom de voz, regras de negócio e estrutura visual."></textarea>
             </div>
 
             <div class="mb-8">
-                <label class="block text-sm font-bold text-gray-700 mb-2">3. Insumos / Guide <span class="text-red-500">*Primordial para a IA</span></label>
+                <label class="block text-sm font-bold text-gray-700 mb-2">4. Insumos / Guide <span class="text-red-500">*Primordial para a IA</span></label>
                 <div class="flex flex-col gap-4">
                     <input type="file" id="upload-insumos" multiple class="hidden" accept=".pdf,.png,.jpg,.jpeg,.svg,.doc,.docx">
                     <div onclick="document.getElementById('upload-insumos').click()" class="border-2 border-dashed border-blue-300 rounded-xl p-8 text-center bg-blue-50 hover:bg-blue-100 transition cursor-pointer relative overflow-hidden group">
